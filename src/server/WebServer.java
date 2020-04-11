@@ -1,4 +1,7 @@
 package server;
+import models.Review; //can't import models, but I can import classes from those packages
+import models.Profile;
+import models.Location;
 
 public class WebServer {
 	
