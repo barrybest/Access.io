@@ -10,33 +10,38 @@ public class Location {
 		this.locationID = locID;
 	}
 	
+	// Return the name of a location
 	public String getName(int locationID) {
 		String name = "";
-		// Use MySQL here
+		name = SQLCalls.locationToName(locationID);
 		return name;
 	}
 	
+	// Return the address of a location
 	public String getAddress(int locationID) {
 		String address = "";
-		// Use MySQL here
+		address = SQLCalls.locationToAddress(locationID);
 		return address;
 	}
 	
+	// Return the average ratings of a location in an array list
 	public ArrayList<Integer> getAverages(int locationID) {
 		ArrayList<Integer> averages = new ArrayList<Integer>();
-		// Use MySQL here
+		averages = SQLCalls.locationToAverages(locationID);
 		return averages;
 	}
 	
-	public int getPhone(int locationID) {
-		int phoneNum = 0;
-		// Use MySQL here
+	// Return the phone number of a location as a String
+	public String getPhone(int locationID) {
+		String phoneNum = "";
+		phoneNum = SQLCalls.locationToPhone(locationID);
 		return phoneNum;
 	}
 	
+	// Return the website URL of a location
 	public String getURL(int locationID) {
 		String URL = "";
-		// Use MySQL here
+		URL = SQLCalls.locationToURL(locationID);
 		return URL;
 	}
 }
