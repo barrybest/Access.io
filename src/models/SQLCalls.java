@@ -89,6 +89,83 @@ public class SQLCalls {
 // --------------------------------- For Profile.java ---------------------------------
 	
 // --------------------------------- For Review.java ---------------------------------
-	
 
-}
+	public static String reviewToUserID(int reviewID) {
+		String userID = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("SELECT UserID FROM Reviews WHERE reviewID='" + reviewID + "'");
+			userID = rs.getString("UserID");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return userID;
+	}
+
+	public static String reviewToTitle(int reviewID) {
+		String title = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("SELECT Title FROM Reviews WHERE reviewID='" + reviewID + "'");
+			title = rs.getString("Title");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return title;
+	}
+
+	public static String reviewToBody(int reviewID) {
+		String body = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("SELECT Body FROM Reviews WHERE reviewID='" + reviewID + "'");
+            body = rs.getString("Body");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return body;
+	}
+
+	public static String reviewToUpvote(int reviewID) {
+		String upvote = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("SELECT Upvote FROM Reviews WHERE reviewID='" + reviewID + "'");
+			upvote = rs.getString("Upvote");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return upvote;
+	}
+
+	public static String reviewToDownvote(int reviewID) {
+		String downvote = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("SELECT Downvote FROM Reviews WHERE reviewID='" + reviewID + "'");
+			downvote = rs.getString("Downvote");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return downvote;
+	}
+
+    public static void addUpvote(int reviewID, int upvotecount) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE reviewID='" + reviewID + "'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+    public static void addDownvote(int reviewID, int downvotecount) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE reviewID='" + reviewID + "'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+} 
