@@ -8,13 +8,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class SQLCalls {
-	public static final String CREDENTIALS_STRING = "jdbc:mysql://google/Accessio?cloudSqlInstance=accessio:us-west1:accessio&socketFactory=com.google.cloud.sql.mysql.SocketFactory&useSSL=false&user=user&password=user";
+	// Note: This connection assumes that your user is root and your password is root
+	// Database name is Accessio
+	public static final String CREDENTIALS_STRING = "jdbc:mysql://localhost/Accessio?user=root&password=root&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	static Connection conn = null;
 	
-	// Call in main servlet whenever we're starting execution --> connection is always saved
+	// Call in servlet whenever we're starting execution --> connection is always saved
 	public SQLCalls() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(CREDENTIALS_STRING);
 		} catch (Exception e) {
 			// handle exception
@@ -23,67 +24,119 @@ public class SQLCalls {
 	
 // --------------------------------- For Location.java ---------------------------------
 	
-	public static String locationToName(int locationID) {
+	public String locationToName(String locationID) {
 		String locName = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "'");
-			locName = rs.getString("LocationName");
+			if (rs.next()) locName = rs.getString("LocationName");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return locName;
 	}
 	
-	public static String locationToAddress(int locationID) {
+	public String locationToAddress(String locationID) {
 		String address = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Address FROM Locations WHERE LocationID='" + locationID + "'");
-			address = rs.getString("Address");
+			if (rs.next()) address = rs.getString("Address");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return address;
 	}
 	
-	public static ArrayList<Integer> locationToAverages(int locationID) {
-		ArrayList<Integer> averages = new ArrayList<Integer>();
+	public ArrayList<String> locationToAverages(String locationID) {
+		ArrayList<String> averages = new ArrayList<String>();
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT ElevatorRating, DoorRating, RampRating, Other FROM Locations WHERE LocationID='" + locationID + "'");
-			averages.add(Integer.parseInt(rs.getString("ElevatorRating")));
-			averages.add(Integer.parseInt(rs.getString("DoorRating")));
-			averages.add(Integer.parseInt(rs.getString("RampRating")));
-			averages.add(Integer.parseInt(rs.getString("Other")));
+			if (rs.next()) {
+				averages.add(rs.getString("ElevatorRating"));
+				averages.add(rs.getString("DoorRating"));
+				averages.add(rs.getString("RampRating"));
+				averages.add(rs.getString("Other"));
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return averages;
 	}
 	
-	public static String locationToPhone(int locationID) {
+	public String locationToPhone(String locationID) {
 		String phone = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT PhoneNumber FROM Locations WHERE LocationID='" + locationID + "'");
-			phone = rs.getString("PhoneNumber");
+			if (rs.next()) phone = rs.getString("PhoneNumber");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return phone;
 	}
 	
-	public static String locationToURL(int locationID) {
+	public String locationToURL(String locationID) {
 		String site = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Website FROM Locations WHERE LocationID='" + locationID + "'");
-			site = rs.getString("Website");
+			if (rs.next()) site = rs.getString("Website");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return site;
+	}
+	
+	// Method to add review
+	public void leaveReview(String locationID, String userID, String review) {
+		try {
+			Statement st = conn.createStatement();
+			st.executeQuery("INSERT INTO Reviews (LocationID, UserID, Review, Upvotes, Downvotes) VALUES ('"
+			+ locationID + "', '" + userID + "', '" + review + "', '0', '0')");
+			return;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// Method to leave rating --> make sure this updates average ratings in Locations table
+	public void leaveRating(String locationID, String userID, String elevatorRating, String rampRating, String doorRating, String otherRating) {
+		try {
+			Statement st = conn.createStatement();
+			st.executeQuery("INSERT INTO Ratings (UserID, LocationID, ElevatorRating, RampRating, DoorRating, Other) VALUES ('" +
+			userID + "', '" + locationID + "', '" + elevatorRating + "', '" + rampRating + "', '" + doorRating + "', '" + otherRating + "')");
+			
+			// Set new elevator rating average
+			String newElevator = "";
+			ResultSet rs = st.executeQuery("IFNULL((SELECT AVG(ElevatorRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
+			if (rs.next()) newElevator = rs.getString("ElevatorRating");
+			st.executeQuery("UPDATE Locations SET ElevatorRating='" + newElevator + "' WHERE LocationID = '" + locationID + "'");
+			
+			// Set new ramp rating average
+			String newRamp = "";
+			rs = st.executeQuery("IFNULL((SELECT AVG(RampRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
+			if (rs.next()) newElevator = rs.getString("RampRating");
+			st.executeQuery("UPDATE Locations SET RampRating='" + newRamp + "' WHERE LocationID = '" + locationID + "'");
+			
+			// Set new door rating average
+			String newDoor = "";
+			rs = st.executeQuery("IFNULL((SELECT AVG(DoorRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
+			if (rs.next()) newElevator = rs.getString("DoorRating");
+			st.executeQuery("UPDATE Locations SET DoorRating='" + newDoor + "' WHERE LocationID = '" + locationID + "'");
+			
+			// Set new other rating average
+			String newOther = "";
+			rs = st.executeQuery("IFNULL((SELECT AVG(OtherRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
+			if (rs.next()) newElevator = rs.getString("OtherRating");
+			st.executeQuery("UPDATE Locations SET OtherRating='" + newOther + "' WHERE LocationID = '" + locationID + "'");
+			
+			return;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 // --------------------------------- For Profile.java ---------------------------------
@@ -95,7 +148,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT UserID FROM Reviews WHERE reviewID='" + reviewID + "'");
-			userID = rs.getString("UserID");
+			if (rs.next()) userID = rs.getString("UserID");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -107,7 +160,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Title FROM Reviews WHERE reviewID='" + reviewID + "'");
-			title = rs.getString("Title");
+			if (rs.next()) title = rs.getString("Title");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -119,7 +172,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Body FROM Reviews WHERE reviewID='" + reviewID + "'");
-            body = rs.getString("Body");
+            if (rs.next()) body = rs.getString("Body");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -131,7 +184,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Upvote FROM Reviews WHERE reviewID='" + reviewID + "'");
-			upvote = rs.getString("Upvote");
+			if (rs.next()) upvote = rs.getString("Upvote");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -143,7 +196,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Downvote FROM Reviews WHERE reviewID='" + reviewID + "'");
-			downvote = rs.getString("Downvote");
+			if (rs.next()) downvote = rs.getString("Downvote");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
