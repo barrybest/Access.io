@@ -1,11 +1,15 @@
 package server;
 
 import java.io.IOException;
+import java.util.ArrayList;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import models.SQLCalls;
 
 /**
  * Servlet implementation class LocServ
@@ -20,19 +24,18 @@ public class LocServ extends HttpServlet {
 
     //need to do figure out where we will take the averages of the ratings for each location
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.getWriter().append("Served at: ").append(request.getContextPath());
-		//pass in the name of the location that is being requested...
-		//String location = request.getParameter("locationName");
-		//following parameters for the type of info being requested - contacts, ratings, reviews
-		//String infoRequested = request.getParameter("infoRequested");
-		//types of requests
-		//general -- return everything
 		
-			//contacts -- return the contacts for the location
+		// Pass in location identifier to grab information
+		int locationID = Integer.parseInt(request.getParameter("locationID"));
 		
-			//ratings -- return the average ratings for the location
-		
-			//reviews -- return all the reviews for the location
+		// Return all information regardless of what the request is for, just so it's stored and simple
+		// (Question: What do we return if the location isn't in our database yet?)
+		SQLCalls locationCall = new SQLCalls();
+		String locationName = locationCall.locationToName(locationID);
+		String locationAddress = locationCall.locationToAddress(locationID);
+		ArrayList<Integer> locationRatings = locationCall.locationToAverages(locationID);
+		String locationPhone = locationCall.locationToPhone(locationID);
+		String locationSite = locationCall.locationToURL(locationID);
 		
 		//leave review -- insert user review into our database
 		

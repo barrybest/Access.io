@@ -8,13 +8,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class SQLCalls {
-	public static final String CREDENTIALS_STRING = "jdbc:mysql://google/Accessio?cloudSqlInstance=accessio:us-west1:accessio&socketFactory=com.google.cloud.sql.mysql.SocketFactory&useSSL=false&user=user&password=user";
+	// Note: This connection assumes that your user is root and your password is root
+	// Database name is Accessio
+	public static final String CREDENTIALS_STRING = "jdbc:mysql://localhost/Accessio?user=root&password=root&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	static Connection conn = null;
 	
-	// Call in main servlet whenever we're starting execution --> connection is always saved
+	// Call in servlet whenever we're starting execution --> connection is always saved
 	public SQLCalls() {
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(CREDENTIALS_STRING);
 		} catch (Exception e) {
 			// handle exception
@@ -23,7 +24,7 @@ public class SQLCalls {
 	
 // --------------------------------- For Location.java ---------------------------------
 	
-	public static String locationToName(int locationID) {
+	public String locationToName(int locationID) {
 		String locName = "";
 		try {
 			Statement st = conn.createStatement();
@@ -35,7 +36,7 @@ public class SQLCalls {
 		return locName;
 	}
 	
-	public static String locationToAddress(int locationID) {
+	public String locationToAddress(int locationID) {
 		String address = "";
 		try {
 			Statement st = conn.createStatement();
@@ -47,7 +48,7 @@ public class SQLCalls {
 		return address;
 	}
 	
-	public static ArrayList<Integer> locationToAverages(int locationID) {
+	public ArrayList<Integer> locationToAverages(int locationID) {
 		ArrayList<Integer> averages = new ArrayList<Integer>();
 		try {
 			Statement st = conn.createStatement();
@@ -62,7 +63,7 @@ public class SQLCalls {
 		return averages;
 	}
 	
-	public static String locationToPhone(int locationID) {
+	public String locationToPhone(int locationID) {
 		String phone = "";
 		try {
 			Statement st = conn.createStatement();
@@ -74,7 +75,7 @@ public class SQLCalls {
 		return phone;
 	}
 	
-	public static String locationToURL(int locationID) {
+	public String locationToURL(int locationID) {
 		String site = "";
 		try {
 			Statement st = conn.createStatement();
@@ -85,6 +86,20 @@ public class SQLCalls {
 		}
 		return site;
 	}
+	
+	// Method to add review
+	public void leaveReview(int locationID, int userID, String review) {
+		try {
+			String locID = Integer.toString(locationID);
+			
+			Statement st = conn.createStatement();
+			//working on this ResultSet rs = st.executeQuery("INSERT INTO Reviews (LocationID, UserID, Review, Upvotes, Downvotes) VALUES ('" + locationID + "', '" + userID + ', ')
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// Method to leave rating --> make sure this updates average ratings table
 	
 // --------------------------------- For Profile.java ---------------------------------
 	
