@@ -26,16 +26,24 @@ public class LocServ extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		// Pass in location identifier to grab information
-		int locationID = Integer.parseInt(request.getParameter("locationID"));
+		String locationID = request.getParameter("locationID");
 		
 		// Return all information regardless of what the request is for, just so it's stored and simple
-		// (Question: What do we return if the location isn't in our database yet?)
-		SQLCalls locationCall = new SQLCalls();
-		String locationName = locationCall.locationToName(locationID);
-		String locationAddress = locationCall.locationToAddress(locationID);
-		ArrayList<Integer> locationRatings = locationCall.locationToAverages(locationID);
-		String locationPhone = locationCall.locationToPhone(locationID);
-		String locationSite = locationCall.locationToURL(locationID);
+		// (Question: What do we return if the location isn't in our database yet?)	
+		if (locationID != null) {
+			SQLCalls locationCall = new SQLCalls();
+			String locationName = locationCall.locationToName(locationID);
+			String locationAddress = locationCall.locationToAddress(locationID);
+			ArrayList<String> locationRatings = locationCall.locationToAverages(locationID);
+			String locationPhone = locationCall.locationToPhone(locationID);
+			String locationSite = locationCall.locationToURL(locationID);
+			
+			/* Test output */
+			System.out.println(locationName);
+			System.out.println(locationAddress);
+			System.out.println(locationPhone);
+			System.out.println(locationSite);
+		}
 		
 		//leave review -- insert user review into our database
 		

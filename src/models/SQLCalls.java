@@ -24,63 +24,65 @@ public class SQLCalls {
 	
 // --------------------------------- For Location.java ---------------------------------
 	
-	public String locationToName(int locationID) {
+	public String locationToName(String locationID) {
 		String locName = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "'");
-			locName = rs.getString("LocationName");
+			if (rs.next()) locName = rs.getString("LocationName");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return locName;
 	}
 	
-	public String locationToAddress(int locationID) {
+	public String locationToAddress(String locationID) {
 		String address = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Address FROM Locations WHERE LocationID='" + locationID + "'");
-			address = rs.getString("Address");
+			if (rs.next()) address = rs.getString("Address");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return address;
 	}
 	
-	public ArrayList<Integer> locationToAverages(int locationID) {
-		ArrayList<Integer> averages = new ArrayList<Integer>();
+	public ArrayList<String> locationToAverages(String locationID) {
+		ArrayList<String> averages = new ArrayList<String>();
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT ElevatorRating, DoorRating, RampRating, Other FROM Locations WHERE LocationID='" + locationID + "'");
-			averages.add(Integer.parseInt(rs.getString("ElevatorRating")));
-			averages.add(Integer.parseInt(rs.getString("DoorRating")));
-			averages.add(Integer.parseInt(rs.getString("RampRating")));
-			averages.add(Integer.parseInt(rs.getString("Other")));
+			if (rs.next()) {
+				averages.add(rs.getString("ElevatorRating"));
+				averages.add(rs.getString("DoorRating"));
+				averages.add(rs.getString("RampRating"));
+				averages.add(rs.getString("Other"));
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return averages;
 	}
 	
-	public String locationToPhone(int locationID) {
+	public String locationToPhone(String locationID) {
 		String phone = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT PhoneNumber FROM Locations WHERE LocationID='" + locationID + "'");
-			phone = rs.getString("PhoneNumber");
+			if (rs.next()) phone = rs.getString("PhoneNumber");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return phone;
 	}
 	
-	public String locationToURL(int locationID) {
+	public String locationToURL(String locationID) {
 		String site = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Website FROM Locations WHERE LocationID='" + locationID + "'");
-			site = rs.getString("Website");
+			if (rs.next()) site = rs.getString("Website");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -88,10 +90,8 @@ public class SQLCalls {
 	}
 	
 	// Method to add review
-	public void leaveReview(int locationID, int userID, String review) {
+	public void leaveReview(String locationID, String userID, String review) {
 		try {
-			String locID = Integer.toString(locationID);
-			
 			Statement st = conn.createStatement();
 			//working on this ResultSet rs = st.executeQuery("INSERT INTO Reviews (LocationID, UserID, Review, Upvotes, Downvotes) VALUES ('" + locationID + "', '" + userID + ', ')
 		} catch (SQLException e) {
@@ -110,7 +110,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT UserID FROM Reviews WHERE reviewID='" + reviewID + "'");
-			userID = rs.getString("UserID");
+			if (rs.next()) userID = rs.getString("UserID");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -122,7 +122,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Title FROM Reviews WHERE reviewID='" + reviewID + "'");
-			title = rs.getString("Title");
+			if (rs.next()) title = rs.getString("Title");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -134,7 +134,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Body FROM Reviews WHERE reviewID='" + reviewID + "'");
-            body = rs.getString("Body");
+            if (rs.next()) body = rs.getString("Body");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -146,7 +146,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Upvote FROM Reviews WHERE reviewID='" + reviewID + "'");
-			upvote = rs.getString("Upvote");
+			if (rs.next()) upvote = rs.getString("Upvote");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -158,7 +158,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT Downvote FROM Reviews WHERE reviewID='" + reviewID + "'");
-			downvote = rs.getString("Downvote");
+			if (rs.next()) downvote = rs.getString("Downvote");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -1,4 +1,4 @@
-drop database Accessio;
+drop database if exists Accessio;
 create database Accessio;
 use Accessio;
 
