@@ -26,12 +26,14 @@ public class LocServ extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		// Pass in location identifier to grab information
+		// (Question: Will we be passing in locationID or a MapKit identifier like lat/long?)
 		String locationID = request.getParameter("locationID");
 		
+		// Connect to MySQL database
+		SQLCalls locationCall = new SQLCalls();
+		
 		// Return all information regardless of what the request is for, just so it's stored and simple
-		// (Question: What do we return if the location isn't in our database yet?)	
-		if (locationID != null) {
-			SQLCalls locationCall = new SQLCalls();
+		if (locationID != null) { // If location is in database already
 			String locationName = locationCall.locationToName(locationID);
 			String locationAddress = locationCall.locationToAddress(locationID);
 			ArrayList<String> locationRatings = locationCall.locationToAverages(locationID);
@@ -43,11 +45,28 @@ public class LocServ extends HttpServlet {
 			System.out.println(locationAddress);
 			System.out.println(locationPhone);
 			System.out.println(locationSite);
+		} else { // If not, let's add it
+			// DISCUSS HOW WE'RE GOING TO DO THIS WITH FRONT-END TEAM
 		}
 		
-		//leave review -- insert user review into our database
+		String requestType = request.getParameter("requestType");
 		
-		//leave rating -- insert user rating into our database
+		// Leave review -- insert user review into our database
+		if (requestType.equalsIgnoreCase("review")) {
+			String userID = request.getParameter("userID");
+			String review = request.getParameter("review");
+			locationCall.leaveReview(locationID, userID, review);
+		}
+		
+		// Leave rating -- insert user rating into our database
+		if (requestType.equalsIgnoreCase("rating")) {
+			String userID = request.getParameter("userID");
+			String elevatorRating = request.getParameter("elevator");
+			String rampRating = request.getParameter("ramp");
+			String doorRating = request.getParameter("door");
+			String otherRating = request.getParameter("other");
+			locationCall.leaveRating(locationID, userID, elevatorRating, rampRating, doorRating, otherRating);
+		}
 		
 	}
 
