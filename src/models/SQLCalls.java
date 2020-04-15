@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import com.sun.org.apache.xpath.internal.operations.And;
+
 public class SQLCalls {
 	// Note: This connection assumes that your user is root and your password is root
 	// Database name is Accessio
@@ -143,23 +145,38 @@ public class SQLCalls {
 	
 // --------------------------------- For Review.java ---------------------------------
 
-	public static String reviewToUserID(int reviewID) {
+	public String reviewToUserID(String locationID, String UserID) {
 		String userID = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT UserID FROM Reviews WHERE reviewID='" + reviewID + "'");
+			ResultSet rs = st.executeQuery(
+					"SELECT UserID FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
 			if (rs.next()) userID = rs.getString("UserID");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return userID;
 	}
+	
+	public String reviewToLocationID(String locationID, String UserID) {
+		String userID = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT LocationID FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
+			if (rs.next()) userID = rs.getString("locationID");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return userID;
+	}
 
-	public static String reviewToTitle(int reviewID) {
+	public String reviewToTitle(String locationID, String UserID) {
 		String title = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Title FROM Reviews WHERE reviewID='" + reviewID + "'");
+			ResultSet rs = st.executeQuery(
+					"SELECT Title FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
 			if (rs.next()) title = rs.getString("Title");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -167,11 +184,12 @@ public class SQLCalls {
 		return title;
 	}
 
-	public static String reviewToBody(int reviewID) {
+	public String reviewToBody(String locationID, String UserID) {
 		String body = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Body FROM Reviews WHERE reviewID='" + reviewID + "'");
+			ResultSet rs = st.executeQuery(
+					"SELECT Body FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
             if (rs.next()) body = rs.getString("Body");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -179,11 +197,12 @@ public class SQLCalls {
 		return body;
 	}
 
-	public static String reviewToUpvote(int reviewID) {
+	public String reviewToUpvote(String locationID) {
 		String upvote = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Upvote FROM Reviews WHERE reviewID='" + reviewID + "'");
+			ResultSet rs = st.executeQuery(
+					"SELECT Upvote FROM Reviews WHERE LocationID='" + locationID + "'");
 			if (rs.next()) upvote = rs.getString("Upvote");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -191,11 +210,12 @@ public class SQLCalls {
 		return upvote;
 	}
 
-	public static String reviewToDownvote(int reviewID) {
+	public String reviewToDownvote(String locationID) {
 		String downvote = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Downvote FROM Reviews WHERE reviewID='" + reviewID + "'");
+			ResultSet rs = st.executeQuery(
+					"SELECT Downvote FROM Reviews WHERE LocationID='" + locationID + "'");
 			if (rs.next()) downvote = rs.getString("Downvote");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -203,19 +223,32 @@ public class SQLCalls {
 		return downvote;
 	}
 
-    public static void addUpvote(int reviewID, int upvotecount) {
+    public void addUpvote(String locationID, int upvotecount) {
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE reviewID='" + reviewID + "'");
+			//only WHERE locationID cuz votecounts are the same for everyone
+			st.executeUpdate(
+					"UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE LocationID='" + locationID + "'"); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
-    public static void addDownvote(int reviewID, int downvotecount) {
+    public void addDownvote(String locationID, int downvotecount) {
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE reviewID='" + reviewID + "'");
+			//only WHERE locationID cuz votecounts are the same for everyone
+			st.executeUpdate(
+					"UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE locationID='" + locationID + "'");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+    public void addReview(String locationID, String UserID, String reviewTitle, String reviewBody) {
+		try {
+			Statement st = conn.createStatement();
+			st.executeUpdate(
+					"INSERT INTO Reviews " + "VALUES (" + locationID + ", " + UserID + ", " + reviewTitle + ", " + reviewBody + ")");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

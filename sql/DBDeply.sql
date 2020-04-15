@@ -54,9 +54,10 @@ create table Reviews(
 	ReviewID INT primary key not null auto_increment,
     LocationID INT not null,
     UserID INT not null,
-    Review VARCHAR(2000) not null,
-    Upvotes INT not null,
-    Downvotes INT not null,
+    Title VARCHAR(100) not null,
+    Body VARCHAR(2000) not null,
+    Upvotes INT,
+    Downvotes INT,
     foreign key fk1(LocationID) references Locations(LocationID),
     foreign key fk2(UserID) references Users(UserID)
 );
