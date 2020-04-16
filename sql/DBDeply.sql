@@ -63,7 +63,7 @@ create table Reviews(
 );
 
 -- review pictures table
-create table Review Pictures(
+create table ReviewPictures(
 	PictureID INT primary key not null auto_increment,
 	ReviewID INT not null,
 	ImageData VARBINARY(MAX) not null

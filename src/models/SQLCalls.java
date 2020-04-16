@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import com.sun.org.apache.xpath.internal.operations.And;
+import org.json.JSONObject;
 
 public class SQLCalls {
 	// Note: This connection assumes that your user is root and your password is root
@@ -142,6 +142,82 @@ public class SQLCalls {
 	}
 	
 // --------------------------------- For Profile.java ---------------------------------
+	
+	// sets a user's city
+	public void setCity(String city, String userID) {
+		try {
+			Statement st = conn.createStatement();
+			st.executeQuery("UPDATE Users SET City='" + city + "' WHERE UserID='" + userID + "'");
+		} catch(SQLException e) {
+			System.out.println("SQLException in setCity: " + e.getMessage());
+		}
+	}
+	
+	// set a user's verified status
+	public void setVerified(String userID, boolean verified) {
+		try {
+			Statement st = conn.createStatement();
+			st.executeQuery("UPDATE Users SET Verified='" + verified + "' WHERE UserID='" + userID + "'");
+		} catch(SQLException e) {
+			System.out.println("SQLException in setCity: " + e.getMessage());
+		}
+	}
+	
+	public void setHandicap(String userID, String handicap) {
+		try {
+			Statement st = conn.createStatement();
+			st.executeQuery("UPDATE Users SET Hnadicap='" + handicap + "' WHERE UserID='" + userID + "'");
+		} catch(SQLException e) {
+			System.out.println("SQLException in setCity: " + e.getMessage());
+		}
+	}
+	
+	// increments a user's stars
+	//  stars displayed to user will be divided by 5 with a max of 25
+	public void incStars(String userID) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet starsRS = st.executeQuery("SELECT Stars From Users WHERE UserID='" + userID + "'");
+			if(starsRS.next()) {
+				if(starsRS.getDouble("Stars") < 25) {
+					st.executeQuery("UPDATE Users SET Stars='" + starsRS.getDouble("Stars") + "' WHERE UserID='" + userID + "'");
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException in incStars: " + e.getMessage());
+		}
+	}
+	
+	// gets the serialize JSON object of the profile for a given userID
+	public String getProfile(String userID) {
+		String jsonUser = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet userRS = st.executeQuery("SELECT * From Users WHERE UserID='" + userID + "'");
+			ResultSet reviewRS = st.executeQuery("SELECT * From Reviews WHERE UserID='" + userID + "'");
+			ResultSet imageRS = st.executeQuery("SELECT * From ReviewPictures WHERE UserID='" + userID + "'");
+			if(userRS.next()) {
+				ArrayList<Review> reviews = new ArrayList<Review>();
+				while(reviewRS.next()) {
+					ResultSet locationRS = st.executeQuery("SELECT * From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
+					Location location = new Location(locationRS.getString("LocationName"), locationRS.getString("Address"), 
+							locationRS.getString("PhoneNumber"), locationRS.getString("Website"), 
+							locationRS.getDouble("ElevatorRating"), locationRS.getDouble("RampRating"), 
+							locationRS.getDouble("DoorRating"), locationRS.getDouble("Other"), new ArrayList<Review>());
+					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), userRS.getString("Name"),
+							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), location);
+					reviews.add(review);
+				}
+				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
+						userRS.getBoolean("Verified"), userRS.getString("Handicap"), imageRS.getString("ImageData"), reviews);
+				JSONObject profileObject = new JSONObject(profile);
+				jsonUser = profileObject.toString();
+			}
+		} catch (SQLException e) {
+			System.out.println("SQLException in getUser: " + e.getMessage());
+		}
+		return jsonUser;
+	}
 	
 // --------------------------------- For Review.java ---------------------------------
 

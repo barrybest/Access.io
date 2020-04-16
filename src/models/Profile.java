@@ -1,30 +1,29 @@
 package models;
 
-import java.io.FileInputStream;
 import java.util.ArrayList;
 
 public class Profile {
-	String name;
-	String city;
-	ArrayList<Review> reviews;
-	double stars;
-	boolean verified;
-	String handicap;
-	FileInputStream imageStream;
+	private String name;
+	private String city;
+	private double stars;
+	private boolean verified;
+	private String handicap;
+	private String picture;
+	private ArrayList<Review> reviews;
 	
 	public Profile(String name,
 				   String city,
-				   ArrayList<Review> reviews,
 				   double stars,
 				   boolean verified,
 				   String handicap,
-				   FileInputStream imageStream) {
+				   String picture,
+				   ArrayList<Review> reviews) {
 		this.name = name;
 		this.city = city;
 		this.reviews = reviews;
 		this.stars = stars;
 		this.verified = verified;
 		this.handicap = handicap;
-		this.imageStream = imageStream;
+		this.picture =  picture;
 	}
 }
