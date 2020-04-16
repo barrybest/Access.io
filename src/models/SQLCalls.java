@@ -11,9 +11,9 @@ import com.sun.org.apache.xpath.internal.operations.And;
 
 public class SQLCalls {
 	// Note: This connection assumes that your user is root and your password is root
-	// Database name is Accessio
-	public static final String CREDENTIALS_STRING = "jdbc:mysql://localhost/accessio?user=root&password=root";
-	public static Connection conn = null;
+	// Database name is accessio
+	public static final String CREDENTIALS_STRING = "jdbc:mysql://localhost/accessio?user=root&password=root&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
+	static Connection conn = null;
 	
 	// Call in servlet whenever we're starting execution --> connection is always saved
 	public SQLCalls() {
@@ -246,26 +246,26 @@ public class SQLCalls {
 		return body;
 	}
 
-	public String reviewToUpvote(String locationID) {
-		String upvote = "";
+	public int reviewToUpvote(String locationID) {
+		int upvote = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Upvote FROM Reviews WHERE LocationID='" + locationID + "'");
-			if (rs.next()) upvote = rs.getString("Upvote");
+					"SELECT Upvotes FROM Reviews WHERE LocationID='" + locationID + "'");
+			if (rs.next()) upvote = rs.getInt("Upvotes");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return upvote;
 	}
 
-	public String reviewToDownvote(String locationID) {
-		String downvote = "";
+	public int reviewToDownvote(String locationID) {
+		int downvote = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Downvote FROM Reviews WHERE LocationID='" + locationID + "'");
-			if (rs.next()) downvote = rs.getString("Downvote");
+					"SELECT Downvotes FROM Reviews WHERE LocationID='" + locationID + "'");
+			if (rs.next()) downvote = rs.getInt("Downvotes");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -277,7 +277,7 @@ public class SQLCalls {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE LocationID='" + locationID + "'"); 
+					"UPDATE Reviews SET Upvotes='" + upvotecount + "' WHERE LocationID='" + locationID + "'"); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -288,7 +288,7 @@ public class SQLCalls {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE locationID='" + locationID + "'");
+					"UPDATE Reviews SET Downvotes='" + downvotecount + "' WHERE locationID='" + locationID + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

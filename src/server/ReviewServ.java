@@ -21,8 +21,8 @@ public class ReviewServ extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//Need to map the review to a location and a User
-		String locationID = request.getParameter("locationID");
-		String userID = request.getParameter("userID");  //maybe getAttribute()?? since user won't be changing often
+		String locationID = "1";//request.getParameter("locationID");
+		String userID = "1";//request.getParameter("userID");  //maybe getAttribute()?? since user won't be changing often
 														 //so maybe we can session.setAttribute("userID", userID) 
 
 		// Connect to MySQL database
@@ -32,8 +32,8 @@ public class ReviewServ extends HttpServlet {
 		if(locationID != null && userID != null){
 			reviewTitle = ReviewCalls.reviewToTitle(locationID, userID);
 			reviewBody = ReviewCalls.reviewToBody(locationID, userID);
-			String upvote = ReviewCalls.reviewToUpvote(locationID);
-			String downvote = ReviewCalls.reviewToDownvote(locationID);
+			int upvote = ReviewCalls.reviewToUpvote(locationID);
+			int downvote = ReviewCalls.reviewToDownvote(locationID);
 			// Output error to user that they can only leave one review per location....
 			
 			//TEST OUTPUT
@@ -55,29 +55,15 @@ public class ReviewServ extends HttpServlet {
 		//if upvote... increase the upvote count in database, dependent upon whether or not user has already upvoted before
 		//front end - upvote and downvote buttons are named 'upvote' and 'downvote'
 		if (requestType.contentEquals("upvote")) {
-			String upvotestring = ReviewCalls.reviewToUpvote(locationID);
-			//NO upvotes yet
-			if(upvotestring.isEmpty()){
-				ReviewCalls.addUpvote(locationID, 1);
-			}
-			else{
-				int currupvote = Integer.parseInt(upvotestring);
-				currupvote++;
-				ReviewCalls.addUpvote(locationID, currupvote);
-			}
+			int currupvote = ReviewCalls.reviewToUpvote(locationID);
+			currupvote++;
+			ReviewCalls.addUpvote(locationID, currupvote);
 		}
 		//if downvote, increase the downvote count in database, dependent upon whether or not user has already downvoted before
 		if (requestType.contentEquals("downvote")) {
-			String downvotestring = ReviewCalls.reviewToUpvote(locationID);
-			//NO downvotes yet
-			if(downvotestring.isEmpty()){
-				ReviewCalls.addDownvote(locationID, 1);
-			}
-			else{
-				int currupvote = Integer.parseInt(downvotestring);
-				currupvote++;
-				ReviewCalls.addDownvote(locationID, currupvote);
-			}
+			int currdownvote = ReviewCalls.reviewToUpvote(locationID);
+			currdownvote--;
+			ReviewCalls.addDownvote(locationID, currdownvote);
 		}
 	}
 
