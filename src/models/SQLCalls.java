@@ -11,7 +11,7 @@ import com.sun.org.apache.xpath.internal.operations.And;
 
 public class SQLCalls {
 	// Note: This connection assumes that your user is root and your password is root
-	// Database name is Accessio
+	// Database name is accessio
 	public static final String CREDENTIALS_STRING = "jdbc:mysql://localhost/accessio?user=root&password=root&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	static Connection conn = null;
 	
@@ -22,8 +22,56 @@ public class SQLCalls {
 			conn = DriverManager.getConnection(CREDENTIALS_STRING);
 		} catch (Exception e) {
 			// handle exception
+			System.out.println("there was a problem establishing a connection to the database");
 		}
 	}
+
+// --------------------------------- For LoginServ ---------------------------------
+	public boolean verifyClient(String clientID) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * FROM Users where username='"+ clientID +"'");
+			while(rs.next()) {
+				String tempName = rs.getString("username");
+				if(tempName.equals(clientID)) {
+					return true;
+				}
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean verifyToken(String clientID, String token) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * from Users where username='"+ clientID +"'");
+			while(rs.next()) {
+				String tempPass = rs.getString("Password");
+				System.out.println(tempPass);
+				if(tempPass.equals(token)) {
+					return true;
+				}
+			}	
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public int newUser(String email, String name, String clientID, String token) {
+		try {
+			Statement st = conn.createStatement();
+			st.executeUpdate("INSERT INTO Users (Email, Name, Username, Password) VALUES ('"
+					+ email + "', '" + name + "', '" + clientID + "', '" + token + "')");
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return -1;
+		}
+		return 1;
+	}
+	
 	
 // --------------------------------- For Location.java ---------------------------------
 	
