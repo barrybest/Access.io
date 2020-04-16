@@ -10,16 +10,16 @@ create table Users(
     Username VARCHAR(100) NOT NULL,
     Password VARCHAR(20) NOT NULL,
     City VARCHAR(1000),
-    Stars DOUBLE,
-    Verified BOOLEAN,
+    Stars DOUBLE NOT NULL,
+    Verified BOOLEAN NOT NULL,
     Handicap VARCHAR(1000)
 );
 
 -- profile picture table
 create table ProfilePictures(
-	PictureID INT primary key not null auto_increment,
-	ReviewID INT not null,
-	ImageData VARBINARY(MAX) not null
+	PictureID INT primary key NOT NULL auto_increment,
+	ReviewID INT NOT NULL,
+	ImageData VARBINARY(MAX) NOT NULL
 );
 
 -- location table
@@ -27,8 +27,8 @@ create table Locations(
 	LocationID INT PRIMARY KEY NOT NULL auto_increment,
     LocationName VARCHAR(1000) NOT NULL,
     Address VARCHAR(1000) NOT NULL,
-    PhoneNumber VARCHAR(200) not null,
-    Website VARCHAR(200) not null,
+    PhoneNumber VARCHAR(200) NOT NULL,
+    Website VARCHAR(200) NOT NULL,
     -- these values can be empty on default, will be filled as users review
     ElevatorRating double, 
     RampRating double,
@@ -38,24 +38,24 @@ create table Locations(
 
 -- this is good, may take some kinks to work out --
 create table Ratings(
-	RatingID INT primary key auto_increment not null,
+	RatingID INT primary key auto_increment NOT NULL,
     UserID INT NOT NULL,
     LocationID INT NOT NULL,
-    ElevatorRating double not null,
-    RampRating double not null,
-    DoorRating double not null,
-    Other double not null,
+    ElevatorRating double NOT NULL,
+    RampRating double NOT NULL,
+    DoorRating double NOT NULL,
+    Other double NOT NULL,
     foreign key fk1(UserID) references Users(UserID),
     foreign key fk2(LocationID) references Locations(LocationID)
 );
 
 -- review table
 create table Reviews(
-	ReviewID INT primary key not null auto_increment,
-    LocationID INT not null,
-    UserID INT not null,
-    Title VARCHAR(100) not null,
-    Body VARCHAR(2000) not null,
+	ReviewID INT primary key NOT NULL auto_increment,
+    LocationID INT NOT NULL,
+    UserID INT NOT NULL,
+    Title VARCHAR(100) NOT NULL,
+    Body VARCHAR(2000) NOT NULL,
     Upvotes INT,
     Downvotes INT,
     foreign key fk1(LocationID) references Locations(LocationID),
@@ -64,8 +64,8 @@ create table Reviews(
 
 -- review pictures table
 create table ReviewPictures(
-	PictureID INT primary key not null auto_increment,
-	ReviewID INT not null,
-	ImageData VARBINARY(MAX) not null
+	PictureID INT primary key NOT NULL auto_increment,
+	ReviewID INT NOT NULL,
+	ImageData VARBINARY(MAX) NOT NULL
 );
             
