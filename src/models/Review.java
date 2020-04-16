@@ -1,20 +1,20 @@
 package models;
 
 public class Review {
-	public int reviewID;
-	public String userID;
-	public String locationID;
-	public int upvotecount;
-	public int downvotecount;
-	public Location location;
-	public String reviewtitle;
-	public String reviewbody;
+	private String title;
+	private String body;
+	private String userName;
+	private int upvotes;
+	private int downvotes;
+	private Location location;
 	
-	public Review(String userID, String locationID, String reviewtitle, String reviewbody){
-		this.userID = userID;
-		this.locationID = locationID;
-		this.reviewtitle = reviewtitle;
-		this.reviewbody = reviewbody;
+	public Review(String title, String body, String userName, int upvotes, int downvotes, Location location) {
+		this.title = title;
+		this.body = body;
+		this.userName = userName;
+		this.upvotes = upvotes;
+		this.downvotes = downvotes;
+		this.location = location;
 	}
 }
 
