@@ -68,4 +68,3 @@ create table ReviewPictures(
 	ReviewID INT NOT NULL,
 	ImageData VARBINARY(MAX) NOT NULL
 );
-            
