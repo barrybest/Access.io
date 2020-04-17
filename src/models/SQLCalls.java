@@ -193,32 +193,44 @@ public class SQLCalls {
 // --------------------------------- For Profile.java ---------------------------------
 	
 	// sets a user's city
-	public void setCity(String city, String userID) {
+	public String setCity(String username, String city) {
 		try {
 			Statement st = conn.createStatement();
-			st.executeQuery("UPDATE Users SET City='" + city + "' WHERE UserID='" + userID + "'");
+			st.executeQuery("UPDATE Users SET City='" + city + "' WHERE Username='" + username + "'");
 		} catch(SQLException e) {
 			System.out.println("SQLException in setCity: " + e.getMessage());
+			return "SQLException in setCity: " + e.getMessage();
 		}
+		return "success";
 	}
 	
 	// set a user's verified status
-	public void setVerified(String userID, boolean verified) {
+	public String setVerified(String username, String verified) {
 		try {
 			Statement st = conn.createStatement();
-			st.executeQuery("UPDATE Users SET Verified='" + verified + "' WHERE UserID='" + userID + "'");
+			if(verified.equals("true")) {
+				st.executeQuery("UPDATE Users SET Verified='" + true + "' WHERE Username='" + username + "'");
+			}
+			else {
+				st.executeQuery("UPDATE Users SET Verified='" + null + "' WHERE Username='" + username + "'");
+			}
 		} catch(SQLException e) {
 			System.out.println("SQLException in setCity: " + e.getMessage());
+			return "SQLException in setCity: " + e.getMessage();
 		}
+		return "success";
 	}
 	
-	public void setHandicap(String userID, String handicap) {
+	// sets a user's handicap
+	public String setHandicap(String username, String handicap) {
 		try {
 			Statement st = conn.createStatement();
-			st.executeQuery("UPDATE Users SET Hnadicap='" + handicap + "' WHERE UserID='" + userID + "'");
+			st.executeQuery("UPDATE Users SET Hnadicap='" + handicap + "' WHERE Username='" + username + "'");
 		} catch(SQLException e) {
 			System.out.println("SQLException in setCity: " + e.getMessage());
+			return "SQLException in setCity: " + e.getMessage();
 		}
+		return "success";
 	}
 	
 	// increments a user's stars
@@ -237,28 +249,25 @@ public class SQLCalls {
 		}
 	}
 	
-	// gets the serialize JSON object of the profile for a given userID
-	public String getProfile(String userID) {
+	// gets the serialized JSON object of the profile for a given userID
+	public String getProfile(String username) {
 		String jsonUser = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet userRS = st.executeQuery("SELECT * From Users WHERE UserID='" + userID + "'");
-			ResultSet reviewRS = st.executeQuery("SELECT * From Reviews WHERE UserID='" + userID + "'");
-			ResultSet imageRS = st.executeQuery("SELECT * From ReviewPictures WHERE UserID='" + userID + "'");
+			ResultSet userRS = st.executeQuery("SELECT Name, IFNULL(City, \"\"), IFNULL(Verified, false), IFNULL(Handicap, \"\") From Users WHERE Username='" + username + "'");
 			if(userRS.next()) {
+				ResultSet reviewRS = st.executeQuery("SELECT Title, Body, IFNULL(Upvotes, 0), IFNULL(Downvotes, 0) From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
+				ResultSet profileImageRS = st.executeQuery("IFNULL(SELECT ImageData From ProfilePictures WHERE UserID='" + userRS.getInt("UserID") + "', \"\")");
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
-					ResultSet locationRS = st.executeQuery("SELECT * From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
-					Location location = new Location(locationRS.getString("LocationName"), locationRS.getString("Address"), 
-							locationRS.getString("PhoneNumber"), locationRS.getString("Website"), 
-							locationRS.getDouble("ElevatorRating"), locationRS.getDouble("RampRating"), 
-							locationRS.getDouble("DoorRating"), locationRS.getDouble("Other"), new ArrayList<Review>());
+					ResultSet reviewImageRS = st.executeQuery("IFNULL(SELECT ImageData From ReviewPictures WHERE reviewID='" + reviewRS.getInt("ReviewID") + "', \"\")");
+					ResultSet locationRS = st.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
 					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), userRS.getString("Name"),
-							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), location);
+							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"), reviewImageRS.getString("ImageData"));
 					reviews.add(review);
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
-						userRS.getBoolean("Verified"), userRS.getString("Handicap"), imageRS.getString("ImageData"), reviews);
+						userRS.getBoolean("Verified"), userRS.getString("Handicap"), profileImageRS.getString("ImageData"), reviews);
 				JSONObject profileObject = new JSONObject(profile);
 				jsonUser = profileObject.toString();
 			}

@@ -6,15 +6,23 @@ public class Review {
 	private String userName;
 	private int upvotes;
 	private int downvotes;
-	private Location location;
+	private String locationName;
+	private String image;
 	
-	public Review(String title, String body, String userName, int upvotes, int downvotes, Location location) {
+	public Review(String title, 
+			String body, 
+			String userName, 
+			int upvotes, 
+			int downvotes, 
+			String locationName, 
+			String image) {
 		this.title = title;
 		this.body = body;
 		this.userName = userName;
 		this.upvotes = upvotes;
 		this.downvotes = downvotes;
-		this.location = location;
+		this.locationName = locationName;
+		this.image = image;
 	}
 }
 
