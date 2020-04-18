@@ -29,24 +29,8 @@ create table Locations(
     Address VARCHAR(1000) NOT NULL,
     PhoneNumber VARCHAR(200) NOT NULL,
     Website VARCHAR(200) NOT NULL,
-    -- these values can be empty on default, will be filled as users review
-    ElevatorRating double, 
-    RampRating double,
-    DoorRating double,
-    Other double
-);
-
--- this is good, may take some kinks to work out --
-create table Ratings(
-	RatingID INT primary key auto_increment NOT NULL,
-    UserID INT NOT NULL,
-    LocationID INT NOT NULL,
-    ElevatorRating double NOT NULL,
-    RampRating double NOT NULL,
-    DoorRating double NOT NULL,
-    Other double NOT NULL,
-    foreign key fk1(UserID) references Users(UserID),
-    foreign key fk2(LocationID) references Locations(LocationID)
+    -- can be empty on default, will be filled as users review
+    Rating double
 );
 
 -- review table
@@ -56,6 +40,7 @@ create table Reviews(
     UserID INT NOT NULL,
     Title VARCHAR(100) NOT NULL,
     Body VARCHAR(2000) NOT NULL,
+    Rating double,
     Upvotes INT,
     Downvotes INT,
     foreign key fk1(LocationID) references Locations(LocationID),

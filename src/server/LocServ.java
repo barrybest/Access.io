@@ -43,20 +43,6 @@ public class LocServ extends HttpServlet {
 			
 		}
 		
-		/* idk what we're doing with ratings rn
-		String requestType = request.getParameter("requestType");
-		
-		// Leave rating -- insert user rating into our database
-		if (requestType.equalsIgnoreCase("rating") && requestType != null) {
-			String userID = request.getParameter("userID");
-			String elevatorRating = request.getParameter("elevator");
-			String rampRating = request.getParameter("ramp");
-			String doorRating = request.getParameter("door");
-			String otherRating = request.getParameter("other");
-			locationCall.leaveRating(locationID, userID, elevatorRating, rampRating, doorRating, otherRating);
-		}
-		*/
-		
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

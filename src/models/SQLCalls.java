@@ -98,8 +98,7 @@ public class SQLCalls {
 			Statement st = conn.createStatement();
 			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locID + "';");
 			Location location = new Location(loc.getString("LocationName"), loc.getString("Address"), loc.getString("PhoneNumber"),
-					loc.getString("Website"), loc.getDouble("ElevatorRating"), loc.getDouble("RampRating"), loc.getDouble("DoorRating"),
-					loc.getDouble("Other"), null);
+					loc.getString("Website"), loc.getDouble("Rating"), null);
 			// Review list is null right now because our database isn't updated
 			JSONObject locationObject = new JSONObject(location);
 			locJson = locationObject.toString();
@@ -126,44 +125,6 @@ public class SQLCalls {
 	public ArrayList<String> locationToReviews(int locationID) {
 		ArrayList<String> reviews = new ArrayList<String>();
 		return reviews;
-	}
-	
-	// Method to leave rating --> make sure this updates average ratings in Locations table
-	public void leaveRating(int locationID, String userID, double elevatorRating, double rampRating, double doorRating, double otherRating) {
-		try {
-			Statement st = conn.createStatement();
-			st.executeUpdate("INSERT INTO Ratings (UserID, LocationID, ElevatorRating, RampRating, DoorRating, Other) VALUES ('" +
-			userID + "', '" + locationID + "', '" + elevatorRating + "', '" + rampRating + "', '" + doorRating + "', '" + otherRating + "')");
-			
-			// Set new elevator rating average
-			String newElevator = "";
-			ResultSet rs = st.executeQuery("IFNULL((SELECT AVG(ElevatorRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("ElevatorRating");
-			st.executeUpdate("UPDATE Locations SET ElevatorRating='" + newElevator + "' WHERE LocationID = '" + locationID + "'");
-			
-			// Set new ramp rating average
-			String newRamp = "";
-			rs = st.executeQuery("IFNULL((SELECT AVG(RampRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("RampRating");
-			st.executeUpdate("UPDATE Locations SET RampRating='" + newRamp + "' WHERE LocationID = '" + locationID + "'");
-			
-			// Set new door rating average
-			String newDoor = "";
-			rs = st.executeQuery("IFNULL((SELECT AVG(DoorRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("DoorRating");
-			st.executeUpdate("UPDATE Locations SET DoorRating='" + newDoor + "' WHERE LocationID = '" + locationID + "'");
-			
-			// Set new other rating average
-			String newOther = "";
-			rs = st.executeQuery("IFNULL((SELECT AVG(OtherRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("OtherRating");
-			st.executeUpdate("UPDATE Locations SET OtherRating='" + newOther + "' WHERE LocationID = '" + locationID + "'");
-			
-			return;
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 	}
 	
 // --------------------------------- For Profile.java ---------------------------------
@@ -236,10 +197,12 @@ public class SQLCalls {
 				ResultSet profileImageRS = st.executeQuery("IFNULL(SELECT ImageData From ProfilePictures WHERE UserID='" + userRS.getInt("UserID") + "', \"\")");
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
-					ResultSet reviewImageRS = st.executeQuery("IFNULL(SELECT ImageData From ReviewPictures WHERE reviewID='" + reviewRS.getInt("ReviewID") + "', \"\")");
-					ResultSet locationRS = st.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
-					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), userRS.getString("Name"),
-							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"), reviewImageRS.getString("ImageData"));
+					ResultSet locationRS = st.executeQuery("SELECT * From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
+					Location location = new Location(locationRS.getString("LocationName"), locationRS.getString("Address"), 
+							locationRS.getString("PhoneNumber"), locationRS.getString("Website"), 
+							locationRS.getDouble("Rating"), new ArrayList<Review>());
+					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), reviewRS.getDouble("Rating"),
+							userRS.getString("Name"), reviewRS.getInt("Upvotes"), reviewRS.getInt("Downvotes"), location);
 					reviews.add(review);
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
@@ -306,6 +269,19 @@ public class SQLCalls {
 		}
 		return body;
 	}
+	
+	public String reviewToRating(String locationID, String UserID) {
+		String rating = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT Rating FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
+            if (rs.next()) rating = rs.getString("Rating");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rating;
+	}
 
 	public int reviewToUpvote(String locationID) {
 		int upvote = 0;
@@ -354,11 +330,18 @@ public class SQLCalls {
 			e.printStackTrace();
 		}
 	}
-    public void addReview(String locationID, String UserID, String reviewTitle, String reviewBody) {
+    public void addReview(String locationID, String UserID, String reviewTitle, String reviewBody, double rating) {
 		try {
 			Statement st = conn.createStatement();
 			st.executeUpdate(
-					"INSERT INTO Reviews " + "VALUES (" + locationID + ", " + UserID + ", " + reviewTitle + ", " + reviewBody + ")");
+					"INSERT INTO Reviews (LocationID, UserID, Title, Body, Rating, Upvotes, Downvotes) VALUES "
+					+ "('" + locationID + "', '" + UserID + "', '" + reviewTitle + "', '" + reviewBody + "', '" +
+						rating + "', 0, 0");
+			// Update average in Locations table
+			double avgRating = 0;
+			ResultSet rs = st.executeQuery("IFNULL((SELECT AVG(Rating) FROM Reviews WHERE LocationID = '" + locationID + "'), 0)");
+			if (rs.next()) avgRating = rs.getDouble("Rating");
+			st.executeUpdate("UPDATE Locations SET Rating='" + avgRating + "' WHERE LocationID = '" + locationID + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
