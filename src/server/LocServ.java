@@ -22,7 +22,6 @@ public class LocServ extends HttpServlet {
         super();
     }
 
-    //need to do figure out where we will take the averages of the ratings for each location
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		// Pass in location name to grab information
@@ -38,6 +37,9 @@ public class LocServ extends HttpServlet {
 		if (locationID != -1) { // If location is in database already
 			// LocationInfo is JSON object containing all location parameters
 			String locationInfo = locationCall.getLocation(locationID);
+			
+			// Test JSON
+			System.out.println(locationInfo);
 			
 		} else { // If not, let's add it
 			

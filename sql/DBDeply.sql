@@ -1,6 +1,6 @@
-drop database if exists Accessio;
-create database Accessio;
-use Accessio;
+drop database if exists accessio;
+create database accessio;
+use accessio;
 
 -- user table
 create table Users(

@@ -4,13 +4,20 @@ public class Review {
 	private String title;
 	private String body;
 	private double rating;
-	private String userName;
+	String userName;
 	private int upvotes;
 	private int downvotes;
-	private String locationName;
-	private String image;
+	String locationName;
+	String image;
 	
-public Review(String title, String body, double rating, String userName, int upvotes, int downvotes, Location location) {
+public Review(String title,
+			  String body,
+			  double rating,
+			  String userName,
+			  int upvotes,
+			  int downvotes,
+			  String locationName,
+			  String image) {
 		this.title = title;
 		this.body = body;
 		this.rating = rating;
