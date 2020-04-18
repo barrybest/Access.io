@@ -80,7 +80,6 @@ public class SQLCalls {
 		String locJson = "";
 		try {
 			Statement st = conn.createStatement();
-			ArrayList<Double> locationRatings = locationToAverages(locID);
 			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locID + "';");
 			Location location = new Location(loc.getString("LocationName"), loc.getString("Address"), loc.getString("PhoneNumber"),
 					loc.getString("Website"), loc.getDouble("ElevatorRating"), loc.getDouble("RampRating"), loc.getDouble("DoorRating"),
