@@ -75,85 +75,45 @@ public class SQLCalls {
   
 // --------------------------------- For Location.java ---------------------------------
 	
-	public String locationToName(String locationID) {
-		String locName = "";
+	// Returns all information about a Location except review list
+	public String getLocation(int locID) {
+		String locJson = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) locName = rs.getString("LocationName");
+			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locID + "';");
+			Location location = new Location(loc.getString("LocationName"), loc.getString("Address"), loc.getString("PhoneNumber"),
+					loc.getString("Website"), loc.getDouble("ElevatorRating"), loc.getDouble("RampRating"), loc.getDouble("DoorRating"),
+					loc.getDouble("Other"), null);
+			// Review list is null right now because our database isn't updated
+			JSONObject locationObject = new JSONObject(location);
+			locJson = locationObject.toString();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return locName;
+		return locJson;
 	}
 	
-	public String locationToAddress(String locationID) {
-		String address = "";
+	public int verifyLocation(String locName) {
+		int locID = -1;
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Address FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) address = rs.getString("Address");
+			ResultSet rs = st.executeQuery("SELECT LocationID FROM Locations WHERE LocationName='" + locName + "';");
+			if (rs.next()) locID = rs.getInt("LocationID");
+			System.out.println(locID);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return address;
+		return locID;
 	}
 	
-	public ArrayList<String> locationToAverages(String locationID) {
-		ArrayList<String> averages = new ArrayList<String>();
-		try {
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT ElevatorRating, DoorRating, RampRating, Other FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) {
-				averages.add(rs.getString("ElevatorRating"));
-				averages.add(rs.getString("DoorRating"));
-				averages.add(rs.getString("RampRating"));
-				averages.add(rs.getString("Other"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return averages;
-	}
-	
-	public String locationToPhone(String locationID) {
-		String phone = "";
-		try {
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT PhoneNumber FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) phone = rs.getString("PhoneNumber");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return phone;
-	}
-	
-	public String locationToURL(String locationID) {
-		String site = "";
-		try {
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Website FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) site = rs.getString("Website");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return site;
-	}
-	
-	// Method to add review
-	public void leaveReview(String locationID, String userID, String review) {
-		try {
-			Statement st = conn.createStatement();
-			st.executeUpdate("INSERT INTO Reviews (LocationID, UserID, Review, Upvotes, Downvotes) VALUES ('"
-			+ locationID + "', '" + userID + "', '" + review + "', '0', '0')");
-			return;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+	// I can do this as soon as we update the SQL database
+	public ArrayList<String> locationToReviews(int locationID) {
+		ArrayList<String> reviews = new ArrayList<String>();
+		return reviews;
 	}
 	
 	// Method to leave rating --> make sure this updates average ratings in Locations table
-	public void leaveRating(String locationID, String userID, String elevatorRating, String rampRating, String doorRating, String otherRating) {
+	public void leaveRating(int locationID, String userID, double elevatorRating, double rampRating, double doorRating, double otherRating) {
 		try {
 			Statement st = conn.createStatement();
 			st.executeUpdate("INSERT INTO Ratings (UserID, LocationID, ElevatorRating, RampRating, DoorRating, Other) VALUES ('" +

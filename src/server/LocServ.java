@@ -25,41 +25,29 @@ public class LocServ extends HttpServlet {
     //need to do figure out where we will take the averages of the ratings for each location
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// Pass in location identifier to grab information
-		// (Question: Will we be passing in locationID or a MapKit identifier like lat/long?)
-		String locationID = request.getParameter("locationID");
+		// Pass in location name to grab information
+		String locationName = request.getParameter("locationName");
 		
 		// Connect to MySQL database
 		SQLCalls locationCall = new SQLCalls();
 		
+		// Return locationID if successful, -1 if not
+		int locationID = locationCall.verifyLocation(locationName);
+		
 		// Return all information regardless of what the request is for, just so it's stored and simple
-		if (locationID != null) { // If location is in database already
-			String locationName = locationCall.locationToName(locationID);
-			String locationAddress = locationCall.locationToAddress(locationID);
-			ArrayList<String> locationRatings = locationCall.locationToAverages(locationID);
-			String locationPhone = locationCall.locationToPhone(locationID);
-			String locationSite = locationCall.locationToURL(locationID);
+		if (locationID != -1) { // If location is in database already
+			// LocationInfo is JSON object containing all location parameters
+			String locationInfo = locationCall.getLocation(locationID);
 			
-			/* Test output */
-			System.out.println(locationName);
-			System.out.println(locationAddress);
-			System.out.println(locationPhone);
-			System.out.println(locationSite);
 		} else { // If not, let's add it
-			// DISCUSS HOW WE'RE GOING TO DO THIS WITH FRONT-END TEAM
+			
 		}
 		
+		/* idk what we're doing with ratings rn
 		String requestType = request.getParameter("requestType");
 		
-		// Leave review -- insert user review into our database
-		if (requestType.equalsIgnoreCase("review")) {
-			String userID = request.getParameter("userID");
-			String review = request.getParameter("review");
-			locationCall.leaveReview(locationID, userID, review);
-		}
-		
 		// Leave rating -- insert user rating into our database
-		if (requestType.equalsIgnoreCase("rating")) {
+		if (requestType.equalsIgnoreCase("rating") && requestType != null) {
 			String userID = request.getParameter("userID");
 			String elevatorRating = request.getParameter("elevator");
 			String rampRating = request.getParameter("ramp");
@@ -67,6 +55,7 @@ public class LocServ extends HttpServlet {
 			String otherRating = request.getParameter("other");
 			locationCall.leaveRating(locationID, userID, elevatorRating, rampRating, doorRating, otherRating);
 		}
+		*/
 		
 	}
 
