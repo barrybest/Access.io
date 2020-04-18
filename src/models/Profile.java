@@ -12,12 +12,12 @@ public class Profile {
 	private ArrayList<Review> reviews;
 	
 	public Profile(String name,
-				   String city,
-				   double stars,
-				   boolean verified,
-				   String handicap,
-				   String picture,
-				   ArrayList<Review> reviews) {
+			String city,
+			double stars,
+			boolean verified,
+			String handicap,
+			String picture,
+			ArrayList<Review> reviews) {
 		this.name = name;
 		this.city = city;
 		this.reviews = reviews;

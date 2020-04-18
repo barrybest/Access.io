@@ -10,8 +10,8 @@ create table Users(
     Username VARCHAR(100) NOT NULL,
     Password VARCHAR(20) NOT NULL,
     City VARCHAR(1000),
-    Stars DOUBLE NOT NULL,
-    Verified BOOLEAN NOT NULL,
+    Stars DOUBLE,
+    Verified BOOLEAN,
     Handicap VARCHAR(1000)
 );
 
