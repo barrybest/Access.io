@@ -13,7 +13,7 @@ import com.sun.org.apache.xpath.internal.operations.And;
 public class SQLCalls {
 	// Note: This connection assumes that your user is root and your password is root
 	// Database name is accessio
-	public static final String CREDENTIALS_STRING = "jdbc:mysql://localhost/accessio?user=root&password=Studdermuffin12!&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
+	public static final String CREDENTIALS_STRING = "jdbc:mysql://localhost/accessio?user=root&password=root&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	static Connection conn = null;
 	
 	// Call in servlet whenever we're starting execution --> connection is always saved
