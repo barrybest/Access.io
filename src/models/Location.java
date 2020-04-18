@@ -13,7 +13,7 @@ public class Location {
 	private double otherRating;
 	private ArrayList<Review> reviews;
 	
-	// Instantiate Location object
+	// Return information for a Location object
 	public Location(String name,
 					String address,
 					String phoneNumber,
