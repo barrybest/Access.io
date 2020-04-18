@@ -33,10 +33,11 @@ public class LoginServ extends HttpServlet {
 					//verify the password for this client is equal to the database token
 					String token = request.getParameter("password");
 					if(mysql.verifyToken(clientID, token)) {
-						pw.println("Logging in user: " + clientID); //return userID for front-end
+						//pw.println("Logging in user: " + clientID); //return userID for front-end
+						pw.println(mysql.findClient(clientID));
 					}
 					else
-						pw.println("That is not the correct password for this user."); //return -1 for front-end
+						pw.println(-1); //return -1 for front-end
 				}
 				else 
 					pw.println("This user does not exist."); //return -1 for front-end
@@ -55,9 +56,9 @@ public class LoginServ extends HttpServlet {
 					String token = request.getParameter("password");
 					int insertStatus = mysql.newUser(email, name, clientID, token); //1 if successful creation, -1 if problem with insert
 					if(insertStatus == 1)
-						pw.println("Successfully registered the user: " + clientID);
+						pw.println(mysql.findClient(clientID));
 					else
-						pw.println("Error registering the user: " + clientID);
+						pw.println(-1);
 				}
 			}
 	}

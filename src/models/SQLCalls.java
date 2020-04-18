@@ -44,6 +44,22 @@ public class SQLCalls {
 		return false;
 	}
 	
+	public int findClient(String clientID) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * FROM Users where username='"+ clientID +"'");
+			while(rs.next()) {
+				String tempName = rs.getString("username");
+				if(tempName.equals(clientID)) {
+					return rs.getInt("userID");
+				}
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
 	public boolean verifyToken(String clientID, String token) {
 		try {
 			Statement st = conn.createStatement();
