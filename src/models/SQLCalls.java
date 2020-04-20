@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
+
+import com.google.gson.Gson;
 import com.sun.org.apache.xpath.internal.operations.And;
 
 public class SQLCalls {
@@ -23,7 +25,7 @@ public class SQLCalls {
 			conn = DriverManager.getConnection(CREDENTIALS_STRING);
 		} catch (Exception e) {
 			// handle exception
-			System.out.println("there was a problem establishing a connection to the database");
+			System.out.println("There was a problem establishing a connection to the database.");
 		}
 	}
 
@@ -97,17 +99,19 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locID + "';");
-			Location location = new Location(loc.getString("LocationName"), loc.getString("Address"), loc.getString("PhoneNumber"),
-					loc.getString("Website"), loc.getDouble("Rating"), null);
-			// Review list is null right now because our database isn't updated
-			JSONObject locationObject = new JSONObject(location);
-			locJson = locationObject.toString();
+			if (loc.next()) {
+				Location location = new Location(loc.getString("LocationName"), loc.getString("Address"), loc.getString("PhoneNumber"), loc.getString("Website"), loc.getDouble("Rating"), null);
+				// Review list is null right now because our database isn't updated
+				Gson gson = new Gson();
+				locJson = gson.toJson(location);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return locJson;
 	}
 	
+	// Make sure that location exists --> return locationID if it does, -1 if not
 	public int verifyLocation(String locName) {
 		int locID = -1;
 		try {
@@ -121,10 +125,31 @@ public class SQLCalls {
 		return locID;
 	}
 	
-	// I can do this as soon as we update the SQL database
-	public ArrayList<String> locationToReviews(int locationID) {
-		ArrayList<String> reviews = new ArrayList<String>();
-		return reviews;
+	// Return a JSON of all reviews for provided location
+	public String getReviews(int locationID) {
+		ArrayList<Review> reviews = new ArrayList<Review>();
+		String revJson = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("SELECT * FROM Reviews WHERE LocationID = '" + locationID + "';");
+			while (rs.next()) {
+				Review current = new Review(rs.getString("Title"), rs.getString("Body"), rs.getDouble("Rating"), 
+						"", rs.getInt("Upvotes"), rs.getInt("Downvotes"), "", "");
+				ResultSet rs2 = st.executeQuery("SELECT Name FROM Users WHERE UserID = '" + rs.getInt("UserID") + "';");
+				if (rs2.next()) current.userName = rs2.getString("Name");
+				rs2 = st.executeQuery("SELECT LocationName FROM Locations WHERE LocationID = '" + rs.getInt("LocationID") + "';");
+				if (rs2.next()) current.locationName = rs2.getString("LocationName");
+				rs2 = st.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID = '" + rs.getInt("ReviewID") + "';");
+				if (rs2.next()) current.image = rs2.getString("ImageData");
+				reviews.add(current);
+			}
+			Gson gson = new Gson();
+			revJson = gson.toJson(reviews);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return revJson;
 	}
 	
 // --------------------------------- For Profile.java ---------------------------------
