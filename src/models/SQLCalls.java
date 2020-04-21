@@ -222,11 +222,10 @@ public class SQLCalls {
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
 					ResultSet locationRS = st.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
-					Location location = new Location(locationRS.getString("LocationName"), locationRS.getString("Address"), 
-							locationRS.getString("PhoneNumber"), locationRS.getString("Website"), 
-							locationRS.getDouble("Rating"), new ArrayList<Review>());
+					String locationName = "";
+					if (locationRS.next()) locationName = locationRS.getString("LocationName");
 					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), reviewRS.getDouble("Rating"),
-							userRS.getString("Name"), reviewRS.getInt("Upvotes"), reviewRS.getInt("Downvotes"), location.name, null);
+							userRS.getString("Name"), reviewRS.getInt("Upvotes"), reviewRS.getInt("Downvotes"), locationName, null);
 					ResultSet reviewImage = st.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID = '" + reviewRS.getInt("ReviewID") + "';");
 					if (reviewImage.next()) review.image = reviewImage.getString("ImageData");
 					reviews.add(review);
