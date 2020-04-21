@@ -1,7 +1,7 @@
 package server;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -26,25 +26,28 @@ public class LocServ extends HttpServlet {
 		
 		// Pass in location name to grab information
 		String locationName = request.getParameter("locationName");
+		double latitude = Double.parseDouble(request.getParameter("latitude"));
+		double longitude = Double.parseDouble(request.getParameter("longitude"));
 		
 		// Connect to MySQL database
 		SQLCalls locationCall = new SQLCalls();
 		
-		// Return locationID if successful, -1 if not
-		int locationID = locationCall.verifyLocation(locationName);
+		// Communicate with front end
+		PrintWriter pw = response.getWriter();
 		
-		// Return all information regardless of what the request is for, just so it's stored and simple
+		// Return locationID if successful, -1 if not
+		int locationID = locationCall.verifyLocation(locationName, latitude, longitude);
+		
 		if (locationID != -1) { // If location is in database already
 			// LocationInfo is JSON object containing all location parameters
 			String locationInfo = locationCall.getLocation(locationID);
 			
-			// Test JSON
-			System.out.println(locationInfo);
+			// Send JSON to front end
+			pw.println(locationInfo);
 			
-		} else { // If not, let's add it
-			
+		} else { // If location isn't in database...
+			pw.println("Location doesn't exist.");
 		}
-		
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

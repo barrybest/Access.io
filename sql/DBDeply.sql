@@ -29,6 +29,8 @@ create table Locations(
     Address VARCHAR(1000) NOT NULL,
     PhoneNumber VARCHAR(200) NOT NULL,
     Website VARCHAR(200) NOT NULL,
+    Latitude DOUBLE NOT NULL,
+    Longitude DOUBLE NOT NULL,
     -- can be empty on default, will be filled as users review
     Rating double
 );

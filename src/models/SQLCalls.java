@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import org.json.JSONObject;
-
 import com.google.gson.Gson;
 import com.sun.org.apache.xpath.internal.operations.And;
 
@@ -100,8 +98,7 @@ public class SQLCalls {
 			Statement st = conn.createStatement();
 			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locID + "';");
 			if (loc.next()) {
-				Location location = new Location(loc.getString("LocationName"), loc.getString("Address"), loc.getString("PhoneNumber"), loc.getString("Website"), loc.getDouble("Rating"), null);
-				// Review list is null right now because our database isn't updated
+				Location location = new Location(loc.getString("LocationName"), loc.getString("Address"), loc.getString("PhoneNumber"), loc.getString("Website"), loc.getDouble("Rating"), getReviews(locID));
 				Gson gson = new Gson();
 				locJson = gson.toJson(location);
 			}
@@ -111,14 +108,20 @@ public class SQLCalls {
 		return locJson;
 	}
 	
-	// Make sure that location exists --> return locationID if it does, -1 if not
-	public int verifyLocation(String locName) {
+	// Make sure that location exists and lat/long match --> return locationID if it does, -1 if not
+	public int verifyLocation(String locName, double latitude, double longitude) {
 		int locID = -1;
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT LocationID FROM Locations WHERE LocationName='" + locName + "';");
-			if (rs.next()) locID = rs.getInt("LocationID");
-			System.out.println(locID);
+			ResultSet rs = st.executeQuery("SELECT LocationID, Latitude, Longitude FROM Locations WHERE LocationName='" + locName + "';");
+			while (rs.next()) {
+				double rsLat = rs.getDouble("Latitude");
+				double rsLong = rs.getDouble("Longitude");
+				if (rsLat == latitude && rsLong == longitude) {
+					locID = rs.getInt("LocationID");
+					break;
+				}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -126,9 +129,8 @@ public class SQLCalls {
 	}
 	
 	// Return a JSON of all reviews for provided location
-	public String getReviews(int locationID) {
+	public ArrayList<Review> getReviews(int locationID) {
 		ArrayList<Review> reviews = new ArrayList<Review>();
-		String revJson = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery("SELECT * FROM Reviews WHERE LocationID = '" + locationID + "';");
@@ -143,13 +145,10 @@ public class SQLCalls {
 				if (rs2.next()) current.image = rs2.getString("ImageData");
 				reviews.add(current);
 			}
-			Gson gson = new Gson();
-			revJson = gson.toJson(reviews);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return revJson;
+		return reviews;
 	}
 	
 // --------------------------------- For Profile.java ---------------------------------
@@ -187,7 +186,7 @@ public class SQLCalls {
 	public String setHandicap(String username, String handicap) {
 		try {
 			Statement st = conn.createStatement();
-			st.executeQuery("UPDATE Users SET Hnadicap='" + handicap + "' WHERE Username='" + username + "'");
+			st.executeQuery("UPDATE Users SET Handicap='" + handicap + "' WHERE Username='" + username + "'");
 		} catch(SQLException e) {
 			System.out.println("SQLException in setCity: " + e.getMessage());
 			return "SQLException in setCity: " + e.getMessage();
@@ -222,18 +221,19 @@ public class SQLCalls {
 				ResultSet profileImageRS = st.executeQuery("IFNULL(SELECT ImageData From ProfilePictures WHERE UserID='" + userRS.getInt("UserID") + "', \"\")");
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
-					ResultSet locationRS = st.executeQuery("SELECT * From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
-					Location location = new Location(locationRS.getString("LocationName"), locationRS.getString("Address"), 
-							locationRS.getString("PhoneNumber"), locationRS.getString("Website"), 
-							locationRS.getDouble("Rating"), new ArrayList<Review>());
+					ResultSet locationRS = st.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
+					String locationName = "";
+					if (locationRS.next()) locationName = locationRS.getString("LocationName");
 					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), reviewRS.getDouble("Rating"),
-							userRS.getString("Name"), reviewRS.getInt("Upvotes"), reviewRS.getInt("Downvotes"), location);
+							userRS.getString("Name"), reviewRS.getInt("Upvotes"), reviewRS.getInt("Downvotes"), locationName, null);
+					ResultSet reviewImage = st.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID = '" + reviewRS.getInt("ReviewID") + "';");
+					if (reviewImage.next()) review.image = reviewImage.getString("ImageData");
 					reviews.add(review);
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
 						userRS.getBoolean("Verified"), userRS.getString("Handicap"), profileImageRS.getString("ImageData"), reviews);
-				JSONObject profileObject = new JSONObject(profile);
-				jsonUser = profileObject.toString();
+				Gson gson = new Gson();
+				jsonUser = gson.toJson(profile);
 			}
 		} catch (SQLException e) {
 			System.out.println("SQLException in getUser: " + e.getMessage());
