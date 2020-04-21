@@ -3,7 +3,7 @@ package models;
 import java.util.ArrayList;
 
 public class Location {
-	private String name;
+	String name;
 	private String address;
 	private String phoneNumber;
 	private String website;

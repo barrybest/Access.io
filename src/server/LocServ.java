@@ -26,6 +26,8 @@ public class LocServ extends HttpServlet {
 		
 		// Pass in location name to grab information
 		String locationName = request.getParameter("locationName");
+		double latitude = Double.parseDouble(request.getParameter("latitude"));
+		double longitude = Double.parseDouble(request.getParameter("longitude"));
 		
 		// Connect to MySQL database
 		SQLCalls locationCall = new SQLCalls();
@@ -34,7 +36,7 @@ public class LocServ extends HttpServlet {
 		PrintWriter pw = response.getWriter();
 		
 		// Return locationID if successful, -1 if not
-		int locationID = locationCall.verifyLocation(locationName);
+		int locationID = locationCall.verifyLocation(locationName, latitude, longitude);
 		
 		if (locationID != -1) { // If location is in database already
 			// LocationInfo is JSON object containing all location parameters
@@ -46,7 +48,6 @@ public class LocServ extends HttpServlet {
 		} else { // If location isn't in database...
 			pw.println("Location doesn't exist.");
 		}
-		
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
