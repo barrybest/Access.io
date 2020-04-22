@@ -8,3 +8,7 @@ Clone repository from GitHub using http link from the Git Repository window
 - Right click on working tree
 - Click import projects
 - Click next and finish import
+- Next, right click on the project and go to properties
+- Click on the tab that says "Project Facets"
+- Make sure the Dynamic Web Module and Java Modules are selected
+- Project should now be a Dynamic Web Project that you can connect to your Tomcat Server
