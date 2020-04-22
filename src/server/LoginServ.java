@@ -48,8 +48,12 @@ public class LoginServ extends HttpServlet {
 			else if(requestType.equals("register") && requestType != null) {
 				//check to see if user exists
 				if(mysql.verifyClient(clientID))
-					pw.println("This user already exists."); //return -1 for front-end
+					pw.println(-1); //return -1 for front-end
 				//store new user in database -- needs the values
+				else if (mysql.verifyEmail(request.getParameter("email"))){
+					pw.println(-2);
+				}
+				
 				else {
 					String email = request.getParameter("email");
 					String name = request.getParameter("name");
@@ -58,7 +62,7 @@ public class LoginServ extends HttpServlet {
 					if(insertStatus == 1)
 						pw.println(mysql.findClient(clientID));
 					else
-						pw.println(-1);
+						pw.println(-3);
 				}
 			}
 	}

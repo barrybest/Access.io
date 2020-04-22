@@ -44,6 +44,23 @@ public class SQLCalls {
 		return false;
 	}
 	
+	public boolean verifyEmail(String email) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * FROM Users where email='"+ email +"'");
+			while(rs.next()) {
+				String tempName = rs.getString("email");
+				if(tempName.equals(email)) {
+					return true;
+				}
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	
 	public int findClient(String clientID) {
 		try {
 			Statement st = conn.createStatement();
