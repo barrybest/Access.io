@@ -3,7 +3,10 @@ package models;
 public class Review {
 	private String title;
 	private String body;
-	private double rating;
+	private double elevatorRating;
+	private double rampRating;
+	private double doorRating;
+	private double otherRating;
 	String userName;
 	private int upvotes;
 	private int downvotes;
@@ -12,7 +15,10 @@ public class Review {
 	
 public Review(String title,
 			  String body,
-			  double rating,
+			  double elevatorRating,
+			  double rampRating,
+			  double doorRating,
+			  double otherRating,
 			  String userName,
 			  int upvotes,
 			  int downvotes,
@@ -20,7 +26,10 @@ public Review(String title,
 			  String image) {
 		this.title = title;
 		this.body = body;
-		this.rating = rating;
+		this.elevatorRating = elevatorRating;
+		this.rampRating = rampRating;
+		this.doorRating = doorRating;
+		this.otherRating = otherRating;
 		this.userName = userName;
 		this.upvotes = upvotes;
 		this.downvotes = downvotes;
