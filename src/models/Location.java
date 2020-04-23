@@ -23,5 +23,9 @@ public class Location {
 		this.website = website;
 		this.rating = rating;
 		this.reviews = reviews;
+		if (address == null) this.address = "";
+		if (phoneNumber == null) this.phoneNumber = "";
+		if (website == null) this.website = "";
+		if (rating == 0) this.rating = -1;
 	}
 }

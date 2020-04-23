@@ -108,19 +108,19 @@ public class SQLCalls {
 		return locJson;
 	}
 	
-	// Make sure that location exists and lat/long match --> return locationID if it does, -1 if not
+	// Check if location exists and if lat/long match --> if not, make new location
 	public int verifyLocation(String locName, double latitude, double longitude) {
 		int locID = -1;
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT LocationID, Latitude, Longitude FROM Locations WHERE LocationName='" + locName + "';");
-			while (rs.next()) {
-				double rsLat = rs.getDouble("Latitude");
-				double rsLong = rs.getDouble("Longitude");
-				if (rsLat == latitude && rsLong == longitude) {
-					locID = rs.getInt("LocationID");
-					break;
-				}
+			ResultSet rs = st.executeQuery("SELECT LocationID FROM Locations WHERE LocationName='" + locName + "' AND Latitude = '" + latitude + "' AND Longitude = '" + longitude + "';");
+			Boolean found = false;
+			if (rs.next()) {
+				locID = rs.getInt("LocationID");
+			} else {
+				st.executeUpdate("INSERT INTO Locations (LocationName, Latitude, Longitude) VALUES ('" + locName + "', '" + latitude + "', '" + longitude + "');");
+				rs = st.executeQuery("SELECT LocationID FROM Locations WHERE LocationName='" + locName + "' AND Latitude = '" + latitude + "' AND Longitude = '" + longitude + "';");
+				if (rs.next()) locID = rs.getInt("LocationID");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
