@@ -35,19 +35,15 @@ public class LocServ extends HttpServlet {
 		// Communicate with front end
 		PrintWriter pw = response.getWriter();
 		
-		// Return locationID if successful, -1 if not
+		// Get locationID
 		int locationID = locationCall.verifyLocation(locationName, latitude, longitude);
 		
-		if (locationID != -1) { // If location is in database already
-			// LocationInfo is JSON object containing all location parameters
-			String locationInfo = locationCall.getLocation(locationID);
+		// LocationInfo is JSON object containing all location parameters
+		String locationInfo = locationCall.getLocation(locationID);
 			
-			// Send JSON to front end
-			pw.println(locationInfo);
-			
-		} else { // If location isn't in database...
-			pw.println("Location doesn't exist.");
-		}
+		// Send JSON to front end
+		pw.println(locationInfo);
+
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
