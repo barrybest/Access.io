@@ -44,6 +44,23 @@ public class SQLCalls {
 		return false;
 	}
 	
+	public boolean verifyEmail(String email) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * FROM Users where email='"+ email +"'");
+			while(rs.next()) {
+				String tempName = rs.getString("email");
+				if(tempName.equals(email)) {
+					return true;
+				}
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	
 	public int findClient(String clientID) {
 		try {
 			Statement st = conn.createStatement();
@@ -369,12 +386,12 @@ public class SQLCalls {
 		return rating;
 	}
 
-	public int reviewToUpvote(String locationID) {
+	public int reviewToUpvote(String locationID, String UserID) {
 		int upvote = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Upvotes FROM Reviews WHERE LocationID='" + locationID + "'");
+					"SELECT Upvotes FROM Reviews WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'");
 			if (rs.next()) upvote = Integer.parseInt(rs.getString("Upvotes"));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -382,12 +399,12 @@ public class SQLCalls {
 		return upvote;
 	}
 
-	public int reviewToDownvote(String locationID) {
+	public int reviewToDownvote(String locationID, String UserID) {
 		int downvote = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Downvotes FROM Reviews WHERE LocationID='" + locationID + "'");
+					"SELECT Downvotes FROM Reviews WHERE LocationID='" + locationID + "'AND UserID='" + UserID + "'");
 			if (rs.next()) downvote = Integer.parseInt(rs.getString("Downvotes"));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -395,23 +412,23 @@ public class SQLCalls {
 		return downvote;
 	}
 
-    public void addUpvote(String locationID, int upvotecount) {
+    public void addUpvote(String locationID, int upvotecount, String UserID) {
 		try {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Upvotes='" + upvotecount + "' WHERE LocationID='" + locationID + "'"); 
+					"UPDATE Reviews SET Upvotes='" + upvotecount + "' WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'"); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
-    public void addDownvote(String locationID, int downvotecount) {
+    public void addDownvote(String locationID, int downvotecount, String UserID) {
 		try {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Downvotes='" + downvotecount + "' WHERE LocationID='" + locationID + "';");
+					"UPDATE Reviews SET Downvotes='" + downvotecount + "' WHERE locationID='" + locationID + "' AND UserID='" + UserID + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
