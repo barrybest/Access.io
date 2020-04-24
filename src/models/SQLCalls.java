@@ -325,12 +325,12 @@ public class SQLCalls {
 		return rating;
 	}
 
-	public int reviewToUpvote(String locationID) {
+	public int reviewToUpvote(String locationID, String UserID) {
 		int upvote = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Upvote FROM Reviews WHERE LocationID='" + locationID + "'");
+					"SELECT Upvote FROM Reviews WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'");
 			if (rs.next()) upvote = Integer.parseInt(rs.getString("Upvote"));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -338,12 +338,12 @@ public class SQLCalls {
 		return upvote;
 	}
 
-	public int reviewToDownvote(String locationID) {
+	public int reviewToDownvote(String locationID, String UserID) {
 		int downvote = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Downvote FROM Reviews WHERE LocationID='" + locationID + "'");
+					"SELECT Downvote FROM Reviews WHERE LocationID='" + locationID + "'AND UserID='" + UserID + "'");
 			if (rs.next()) downvote = Integer.parseInt(rs.getString("Downvote"));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -351,23 +351,23 @@ public class SQLCalls {
 		return downvote;
 	}
 
-    public void addUpvote(String locationID, int upvotecount) {
+    public void addUpvote(String locationID, int upvotecount, String UserID) {
 		try {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE LocationID='" + locationID + "'"); 
+					"UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'"); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
-    public void addDownvote(String locationID, int downvotecount) {
+    public void addDownvote(String locationID, int downvotecount, String UserID) {
 		try {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE locationID='" + locationID + "'");
+					"UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE locationID='" + locationID + "' AND UserID='" + UserID + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

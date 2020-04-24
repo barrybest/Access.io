@@ -1,6 +1,8 @@
 package server;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -29,12 +31,13 @@ public class ReviewServ extends HttpServlet {
 		SQLCalls ReviewCalls = new SQLCalls();
 		String reviewTitle = "";
 		String reviewBody = "";
+		PrintWriter pw = response.getWriter();
 		//////* TESTING TO GET VALUES FROM MYSQL DB	*///////
 		if(locationID != null && userID != null){
 			reviewTitle = ReviewCalls.reviewToTitle(locationID, userID);
 			reviewBody = ReviewCalls.reviewToBody(locationID, userID);
-			int upvote = ReviewCalls.reviewToUpvote(locationID);
-			int downvote = ReviewCalls.reviewToDownvote(locationID);
+			int upvote = ReviewCalls.reviewToUpvote(locationID, userID);
+			int downvote = ReviewCalls.reviewToDownvote(locationID, userID);
 			String getrating = ReviewCalls.reviewToRating(locationID, userID);
 			// Output error to user that they can only leave one review per location....
 			//TEST OUTPUT
@@ -46,27 +49,34 @@ public class ReviewServ extends HttpServlet {
 		}
 		
 		//NOTE FOR FRONTEND: these are the names of the buttons to submit forms
-		//1. name="submit" is for submitting a review
+		//1. name="submitReview" is for submitting a review
 		//2. name="upvote" is for upvoting
 		//3. name="downvote" for downvoting
 		String requestType = request.getParameter("requestType");
 		
-		if(requestType.contentEquals("submit")){
+		if(requestType.contentEquals("submitReview")){
 			String newtitle = request.getParameter("title");
 			String newbody = request.getParameter("body");
 			double rating = Double.parseDouble(request.getParameter("rating"));
 			ReviewCalls.addReview(locationID, userID, newtitle, newbody, rating);
 		}
-		if (requestType.contentEquals("upvote")) {
-			int currupvote = ReviewCalls.reviewToUpvote(locationID);
+		else if (requestType.contentEquals("upvote")) {
+			int currupvote = ReviewCalls.reviewToUpvote(locationID, userID);
 			currupvote++;
-			ReviewCalls.addUpvote(locationID, currupvote);
+			ReviewCalls.addUpvote(locationID, currupvote, userID);
 		}
 		//if downvote, increase the downvote count in database, dependent upon whether or not user has already downvoted before
-		if (requestType.contentEquals("downvote")) {
-			int currdownvote = ReviewCalls.reviewToUpvote(locationID);
+		else if (requestType.contentEquals("downvote")) {
+			int currdownvote = ReviewCalls.reviewToUpvote(locationID, userID);
 			currdownvote--;
-			ReviewCalls.addDownvote(locationID, currdownvote);
+			ReviewCalls.addDownvote(locationID, currdownvote, userID);
+		}
+		//get upvote and downvotes
+		else if(requestType.contentEquals("getUpvote")){
+			pw.println(ReviewCalls.reviewToUpvote(locationID, userID));
+		}
+		else if(requestType.contentEquals("getDownvote")){
+			pw.println(ReviewCalls.reviewToDownvote(locationID, userID));
 		}
 	}
 
