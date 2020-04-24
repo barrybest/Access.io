@@ -330,7 +330,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Upvote FROM Reviews WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'");
+					"SELECT Upvotes FROM Reviews WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'");
 			if (rs.next()) upvote = Integer.parseInt(rs.getString("Upvote"));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -343,7 +343,7 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Downvote FROM Reviews WHERE LocationID='" + locationID + "'AND UserID='" + UserID + "'");
+					"SELECT Downvotes FROM Reviews WHERE LocationID='" + locationID + "'AND UserID='" + UserID + "'");
 			if (rs.next()) downvote = Integer.parseInt(rs.getString("Downvote"));
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -356,7 +356,7 @@ public class SQLCalls {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'"); 
+					"UPDATE Reviews SET Upvotes='" + upvotecount + "' WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'"); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -367,7 +367,7 @@ public class SQLCalls {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE locationID='" + locationID + "' AND UserID='" + UserID + "'");
+					"UPDATE Reviews SET Downvotes='" + downvotecount + "' WHERE locationID='" + locationID + "' AND UserID='" + UserID + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
