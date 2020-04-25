@@ -61,14 +61,14 @@ create table ReviewPictures(
 
 -- ---------------------- Add locations ---------------------- 
 INSERT INTO Locations (LocationName, Address, PhoneNumber, Website, Latitude, Longitude) VALUES
-("Dave's Hot Chicken", "970 N Western Ave, Los Angeles, CA 90029", "3232138090", "www.daveshotchicken.com", 0, 0),
-("Trio House", "2700 S Figueroa St, Los Angeles, CA 90007", "2135365699", "triohousela.com", 0, 0),
-("Salvatori Computer Science Center", "941 Bloom Walk, Los Angeles, CA 90089", "2137404494", "https://calendar.usc.edu/salvatori_computer_science_center_sal", 0, 0),
-("Pot of Cha", "3013 S Figueroa St, Los Angeles, CA 90007", "2135161888", "potofcha.com", 0, 0),
-("Seeley G. Mudd Building", "3620 McClintock Ave, Los Angeles, CA 90089", "2137407036", "https://calendar.usc.edu/seeley_g_mudd_building_sgm", 0, 0),
-("Los Angeles Coliseum", "3911 Figueroa St, Los Angeles, CA 90037", "2137477111", "www.lacoliseum.com", 0, 0),
+("Dave's Hot Chicken", "970 N Western Ave, Los Angeles, CA 90029", "3232138090", "www.daveshotchicken.com", 34.112916370408485, -118.33701659459621),
+("Thai by Trio", "2700 S Figueroa St, Los Angeles, CA 90007", "2135365699", "triohousela.com", 0, 0),
+("Salvatori Computer Science Center", "941 Bloom Walk, Los Angeles, CA 90089", "2137404494", "https://calendar.usc.edu/salvatori_computer_science_center_sal", 34.0194210333121, -118.28947033267468),
+("Pot of Cha", "3013 S Figueroa St, Los Angeles, CA 90007", "2135161888", "potofcha.com", 34.02492428479946, -118.27875235117972),
+("Seeley G. Mudd Building", "3620 McClintock Ave, Los Angeles, CA 90089", "2137407036", "https://calendar.usc.edu/seeley_g_mudd_building_sgm", 34.02118619925614, -118.28914042096585),
+("Los Angeles Coliseum", "3911 Figueroa St, Los Angeles, CA 90037", "2137477111", "www.lacoliseum.com", 34.01402750912101, -118.28799243550748),
 ("Treehouse Rooftop", "686 N Spring St, Los Angeles, CA 90012", "2139887064", "treehouserooftop.com", 0, 0),
-("Grace Ford Salvatori Hall", "900 W 36th St, Los Angeles, CA 90089", "2137402666", "https://calendar.usc.edu/grace_ford_salvatori_hall_gfs", 0, 0),
-("Everybody's Kitchen", "642 W 34th St, Los Angeles, CA 90007", "2137400269", "https://hospitality.usc.edu/dining_locations/everybodys-kitchen/", 0, 0),
+("Grace Ford Salvatori Hall", "900 W 36th St, Los Angeles, CA 90089", "2137402666", "https://calendar.usc.edu/grace_ford_salvatori_hall_gfs", 34.02127513124883, -118.28800316434354),
+("Everybody's Kitchen", "642 W 34th St, Los Angeles, CA 90007", "2137400269", "https://hospitality.usc.edu/dining_locations/everybodys-kitchen/", 34.02112610919359, -118.28215833753347),
 ("Target", "3131 S Hoover St #1910, Los Angeles, CA 90089", "2132753149", "https://www.target.com/sl/los-angeles-usc-village/3217", 0, 0),
 ("Trader Joe's", "3131 S Hoover St Ste 1920, Los Angeles, CA 90089", "2137491497", "https://locations.traderjoes.com/ca/los-angeles/250/", 0, 0);
