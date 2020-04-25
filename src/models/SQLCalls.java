@@ -98,7 +98,7 @@ public class SQLCalls {
 			Statement st = conn.createStatement();
 			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locID + "';");
 			if (loc.next()) {
-				Location location = new Location(loc.getString("LocationName"), loc.getString("Address"),
+				Location location = new Location(locID, loc.getString("LocationName"), loc.getString("Address"),
 						loc.getString("PhoneNumber"), loc.getString("Website"), loc.getDouble("ElevatorRating"),
 						loc.getDouble("RampRating"), loc.getDouble("DoorRating"), loc.getDouble("OtherRating"),
 						getReviews(locID));
