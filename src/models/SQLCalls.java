@@ -160,11 +160,14 @@ public class SQLCalls {
 						rs.getDouble("DoorRating"), rs.getDouble("OtherRating"), "", rs.getInt("Upvotes"), rs.getInt("Downvotes"), "", "");
 				int userID = rs.getInt("UserID");
 				int reviewID = rs.getInt("ReviewID");
-				ResultSet rs2 = st.executeQuery("SELECT Name FROM Users WHERE UserID='" + userID + "';");
+				Statement st2 = conn.createStatement();
+				ResultSet rs2 = st2.executeQuery("SELECT Name FROM Users WHERE UserID='" + userID + "';");
 				if (rs2.next()) current.userName = rs2.getString("Name");
-				ResultSet rs3 = st.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "';");
+				Statement st3 = conn.createStatement();
+				ResultSet rs3 = st3.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "';");
 				if (rs3.next()) current.locationName = rs3.getString("LocationName");
-				ResultSet rs4 = st.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID='" + reviewID + "';");
+				Statement st4 = conn.createStatement();
+				ResultSet rs4 = st4.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID='" + reviewID + "';");
 				if (rs4.next()) current.image = rs4.getString("ImageData");
 				reviews.add(current);
 			}
