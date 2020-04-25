@@ -18,8 +18,9 @@ create table Users(
 -- profile picture table
 create table ProfilePictures(
 	PictureID INT primary key NOT NULL auto_increment,
-	ReviewID INT NOT NULL,
-	ImageData VARBINARY(MAX) NOT NULL
+	UserID INT NOT NULL,
+	ImageData VARBINARY(MAX) NOT NULL,
+	FOREIGN KEY fk1(UserID) REFERENCES Users(UserID)
 );
 
 -- location table
@@ -31,27 +32,33 @@ create table Locations(
     Website VARCHAR(200) NOT NULL,
     Latitude DOUBLE NOT NULL,
     Longitude DOUBLE NOT NULL,
-    -- can be empty on default, will be filled as users review
-    Rating double
+    ElevatorRating DOUBLE,
+    RampRating DOUBLE,
+    DoorRating DOUBLE,
+    OtherRating DOUBLE
 );
 
 -- review table
 create table Reviews(
-	ReviewID INT primary key NOT NULL auto_increment,
+	ReviewID INT PRIMARY KEY NOT NULL auto_increment,
     LocationID INT NOT NULL,
     UserID INT NOT NULL,
     Title VARCHAR(100) NOT NULL,
     Body VARCHAR(2000) NOT NULL,
-    Rating double,
+    ElevatorRating DOUBLE,
+    RampRating DOUBLE,
+    DoorRating DOUBLE,
+    OtherRating DOUBLE,
     Upvotes INT,
     Downvotes INT,
-    foreign key fk1(LocationID) references Locations(LocationID),
-    foreign key fk2(UserID) references Users(UserID)
+    FOREIGN KEY fk1(LocationID) REFERENCES Locations(LocationID),
+    FOREIGN KEY fk2(UserID) REFERENCES Users(UserID)
 );
 
 -- review pictures table
 create table ReviewPictures(
-	PictureID INT primary key NOT NULL auto_increment,
+	PictureID INT PRIMARY KEY NOT NULL auto_increment,
 	ReviewID INT NOT NULL,
-	ImageData VARBINARY(MAX) NOT NULL
+	ImageData VARBINARY(MAX) NOT NULL,
+	FOREIGN KEY fk1(ReviewID) REFERENCES Reviews(ReviewID)
 );
