@@ -109,16 +109,16 @@ public class SQLCalls {
 // --------------------------------- For Location.java ---------------------------------
 	
 	// Returns all information about a Location except review list
-	public String getLocation(int locID) {
+	public String getLocation(int locationID) {
 		String locJson = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locID + "';");
+			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locationID + "';");
 			if (loc.next()) {
-				Location location = new Location(locID, loc.getString("LocationName"), loc.getString("Address"),
+				Location location = new Location(locationID, loc.getString("LocationName"), loc.getString("Address"),
 						loc.getString("PhoneNumber"), loc.getString("Website"), loc.getDouble("ElevatorRating"),
 						loc.getDouble("RampRating"), loc.getDouble("DoorRating"), loc.getDouble("OtherRating"),
-						getReviews(locID));
+						getReviews(locationID));
 				Gson gson = new Gson();
 				locJson = gson.toJson(location);
 			}
