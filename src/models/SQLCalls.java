@@ -131,12 +131,23 @@ public class SQLCalls {
 	// Check if location exists and if lat/long match --> if not, make new location
 	public int verifyLocation(String locName, double latitude, double longitude) {
 		int locID = -1;
+		// Trim latitude and longitude to 2 decimal places
+		latitude = ((double)((int)(latitude *100.0)))/100.0;
+		longitude = ((double)((int)(longitude *100.0)))/100.0;
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT LocationID FROM Locations WHERE LocationName='" + locName + "' AND Latitude = '" + latitude + "' AND Longitude = '" + longitude + "';");
+			ResultSet rs = st.executeQuery("SELECT * FROM Locations WHERE LocationName='" + locName + "';");
 			if (rs.next()) {
-				locID = rs.getInt("LocationID");
-			} else {
+				// Trim found location's latitude and longitude to 2 decimal places
+				double locLat = rs.getDouble("Latitude");
+				locLat = ((double)((int)(locLat *100.0)))/100.0;
+				double locLong = rs.getDouble("Longitude");
+				locLong = ((double)((int)(locLong *100.0)))/100.0;
+				if (locLat == latitude && locLong == longitude) {
+					locID = rs.getInt("LocationID");
+				}
+			}
+			if (locID == -1) { // If location wasn't found with matching latitude and longitude
 				st.executeUpdate("INSERT INTO Locations (LocationName, Latitude, Longitude) VALUES ('" + locName + "', '" + latitude + "', '" + longitude + "');");
 				rs = st.executeQuery("SELECT LocationID FROM Locations WHERE LocationName='" + locName + "' AND Latitude = '" + latitude + "' AND Longitude = '" + longitude + "';");
 				if (rs.next()) locID = rs.getInt("LocationID");
