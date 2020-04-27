@@ -10,8 +10,7 @@ public class Review {
 	String userName;
 	private int upvotes;
 	private int downvotes;
-	String locationName;
-	String image;
+	private String locationName;
 	
 public Review(String title,
 			  String body,
@@ -22,8 +21,7 @@ public Review(String title,
 			  String userName,
 			  int upvotes,
 			  int downvotes,
-			  String locationName,
-			  String image) {
+			  String locationName) {
 		this.title = title;
 		this.body = body;
 		this.elevatorRating = elevatorRating;
@@ -34,7 +32,5 @@ public Review(String title,
 		this.upvotes = upvotes;
 		this.downvotes = downvotes;
 		this.locationName = locationName;
-		this.image = image;
 	}
 }
-

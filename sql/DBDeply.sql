@@ -15,13 +15,6 @@ CREATE TABLE Users(
     Handicap VARCHAR(1000)
 );
 
-CREATE TABLE ProfilePictures(
-	PictureID INT primary key NOT NULL auto_increment,
-	UserID INT NOT NULL,
-	ImageData VARBINARY(MAX) NOT NULL,
-	FOREIGN KEY fk1(UserID) REFERENCES Users(UserID)
-);
-
 CREATE TABLE Locations(
 	LocationID INT PRIMARY KEY NOT NULL auto_increment,
     LocationName VARCHAR(1000) NOT NULL,
@@ -48,15 +41,8 @@ CREATE TABLE Reviews(
     OtherRating DOUBLE,
     Upvotes INT,
     Downvotes INT,
-    FOREIGN KEY fk1(LocationID) REFERENCES Locations(LocationID),
-    FOREIGN KEY fk2(UserID) REFERENCES Users(UserID)
-);
-
-CREATE TABLE ReviewPictures(
-	PictureID INT PRIMARY KEY NOT NULL auto_increment,
-	ReviewID INT NOT NULL,
-	ImageData VARBINARY(MAX) NOT NULL,
-	FOREIGN KEY fk1(ReviewID) REFERENCES Reviews(ReviewID)
+    foreign key fk1(LocationID) references Locations(LocationID),
+    foreign key fk2(UserID) references Users(UserID)
 );
 
 -- ---------------------- Add locations ---------------------- 
