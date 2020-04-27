@@ -8,7 +8,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.http.HTTPException;
 
 import com.google.gson.Gson;
 
@@ -43,16 +42,15 @@ public class ReviewServ extends HttpServlet {
 			reviewBody = ReviewCalls.reviewToBody(locationID, userID);
 			String userName = ReviewCalls.reviewToName(userID);
 			String locName = ReviewCalls.reviewToLocation(locationID);
-			String reviewImage = ReviewCalls.reviewToImage(locationID, userID);
-			int upvote = ReviewCalls.reviewToUpvote(locationID);
-			int downvote = ReviewCalls.reviewToDownvote(locationID);
+			int upvote = ReviewCalls.reviewToUpvote(locationID, userID);
+			int downvote = ReviewCalls.reviewToDownvote(locationID, userID);
 			double elevatorRating = ReviewCalls.reviewToElevatorRating(locationID, userID);
 			double rampRating = ReviewCalls.reviewToRampRating(locationID, userID);
 			double doorRating = ReviewCalls.reviewToDoorRating(locationID, userID);
 			double otherRating = ReviewCalls.reviewToOtherRating(locationID, userID);
 			
 			Review review = new Review(reviewTitle, reviewBody, elevatorRating, rampRating, doorRating, otherRating,
-					userName, upvote, downvote, locName, reviewImage);
+					userName, upvote, downvote, locName);
 		
 			Gson gson = new Gson();
 			String jsonReview = gson.toJson(review);
@@ -83,7 +81,6 @@ public class ReviewServ extends HttpServlet {
 // 			System.out.println(downvote);
 // 			System.out.println(getrating);
 // 		}
-    */
 		
 		//NOTE FOR FRONTEND: these are the names of the buttons to submit forms
 		//1. name="submitReview" is for submitting a review
@@ -113,6 +110,7 @@ public class ReviewServ extends HttpServlet {
 			currdownvote--;
 			ReviewCalls.addDownvote(locationID, currdownvote, userID);
 			pw.println("3");
+		}
 		//get upvote and downvotes
 		else if(requestType.contentEquals("getUpvote")){
 			pw.println(ReviewCalls.reviewToUpvote(locationID, userID));

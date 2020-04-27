@@ -167,7 +167,7 @@ public class SQLCalls {
 			ResultSet rs = st.executeQuery("SELECT * FROM Reviews WHERE LocationID='" + locationID + "';");
 			while (rs.next()) {
 				Review current = new Review(rs.getString("Title"), rs.getString("Body"), rs.getDouble("ElevatorRating"), rs.getDouble("RampRating"),
-						rs.getDouble("DoorRating"), rs.getDouble("OtherRating"), "", rs.getInt("Upvotes"), rs.getInt("Downvotes"), "", "");
+						rs.getDouble("DoorRating"), rs.getDouble("OtherRating"), "", rs.getInt("Upvotes"), rs.getInt("Downvotes"), "");
 				int userID = rs.getInt("UserID");
 				int reviewID = rs.getInt("ReviewID");
 				Statement st2 = conn.createStatement();
@@ -177,8 +177,6 @@ public class SQLCalls {
 				ResultSet rs3 = st3.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "';");
 				if (rs3.next()) current.locationName = rs3.getString("LocationName");
 				Statement st4 = conn.createStatement();
-				ResultSet rs4 = st4.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID='" + reviewID + "';");
-				if (rs4.next()) current.image = rs4.getString("ImageData");
 				reviews.add(current);
 			}
 		} catch (SQLException e) {
@@ -255,12 +253,13 @@ public class SQLCalls {
 			Statement locationST = conn.createStatement();
 			ResultSet userRS = userST.executeQuery("SELECT Name, IFNULL(City, \"\"), IFNULL(Verified, false), IFNULL(Handicap, \"\") From Users WHERE Username='" + username + "'");
 			if(userRS.next()) {
-				ResultSet reviewRS = reviewST.executeQuery("SELECT Title, Body, IFNULL(Upvotes, 0), IFNULL(Downvotes, 0) From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
+				ResultSet reviewRS = reviewST.executeQuery("SELECT Title, Body, IFNULL(ElevatorRating, 0), IFNULL(RampRating, 0), IFNULL(DoorRating, 0), IFNULL(OtherRating, 0), IFNULL(Upvotes, 0), IFNULL(Downvotes, 0) From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
 					ResultSet locationRS = locationST.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
-					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), userRS.getString("Name"),
-							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"));
+					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), reviewRS.getDouble("ElevatorRating"),
+							reviewRS.getDouble("RampRating"), reviewRS.getDouble("DoorRating"), reviewRS.getDouble("OtherRating"), 
+							userRS.getString("Name"), reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"));
 					reviews.add(review);
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
