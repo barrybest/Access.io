@@ -1,7 +1,14 @@
-# CSCI201_Group_6
-# download instructions for Eclipse:
-# clone repository from GitHub using http link
-# from the Git Repository window:
-#	- right click on working tree
-#	- click import projects
-#	- click next and finish import
+# Access.io
+## Referenced Files
+Add to Build Path Classpath and Deployment Assembly
+- gson-2.8.6.jar
+- mysql-connector-java-8.0.19.jar
+## Download instructions for Eclipse
+Clone repository from GitHub using http link from the Git Repository window
+- Right click on working tree
+- Click import projects
+- Click next and finish import
+- Next, right click on the project and go to properties
+- Click on the tab that says "Project Facets"
+- Make sure the Dynamic Web Module and Java Modules are selected
+- Project should now be a Dynamic Web Project that you can connect to your Tomcat Server

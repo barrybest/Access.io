@@ -1,7 +1,7 @@
 package server;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,52 +22,28 @@ public class LocServ extends HttpServlet {
         super();
     }
 
-    //need to do figure out where we will take the averages of the ratings for each location
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		// Pass in location identifier to grab information
-		// (Question: Will we be passing in locationID or a MapKit identifier like lat/long?)
-		String locationID = request.getParameter("locationID");
+		// Pass in location name to grab information
+		String locationName = request.getParameter("locationName");
+		double latitude = Double.parseDouble(request.getParameter("latitude"));
+		double longitude = Double.parseDouble(request.getParameter("longitude"));
 		
 		// Connect to MySQL database
 		SQLCalls locationCall = new SQLCalls();
 		
-		// Return all information regardless of what the request is for, just so it's stored and simple
-		if (locationID != null) { // If location is in database already
-			String locationName = locationCall.locationToName(locationID);
-			String locationAddress = locationCall.locationToAddress(locationID);
-			ArrayList<String> locationRatings = locationCall.locationToAverages(locationID);
-			String locationPhone = locationCall.locationToPhone(locationID);
-			String locationSite = locationCall.locationToURL(locationID);
+		// Communicate with front end
+		PrintWriter pw = response.getWriter();
+		
+		// Get locationID
+		int locationID = locationCall.verifyLocation(locationName, latitude, longitude);
+		
+		// LocationInfo is JSON object containing all location parameters
+		String locationInfo = locationCall.getLocation(locationID);
 			
-			/* Test output */
-			System.out.println(locationName);
-			System.out.println(locationAddress);
-			System.out.println(locationPhone);
-			System.out.println(locationSite);
-		} else { // If not, let's add it
-			// DISCUSS HOW WE'RE GOING TO DO THIS WITH FRONT-END TEAM
-		}
-		
-		String requestType = request.getParameter("requestType");
-		
-		// Leave review -- insert user review into our database
-		if (requestType.equalsIgnoreCase("review")) {
-			String userID = request.getParameter("userID");
-			String review = request.getParameter("review");
-			locationCall.leaveReview(locationID, userID, review);
-		}
-		
-		// Leave rating -- insert user rating into our database
-		if (requestType.equalsIgnoreCase("rating")) {
-			String userID = request.getParameter("userID");
-			String elevatorRating = request.getParameter("elevator");
-			String rampRating = request.getParameter("ramp");
-			String doorRating = request.getParameter("door");
-			String otherRating = request.getParameter("other");
-			locationCall.leaveRating(locationID, userID, elevatorRating, rampRating, doorRating, otherRating);
-		}
-		
+		// Send JSON to front end
+		pw.println(locationInfo);
+
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
