@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-
 import com.google.gson.Gson;
 
 public class SQLCalls {
@@ -23,7 +22,7 @@ public class SQLCalls {
 			conn = DriverManager.getConnection(CREDENTIALS_STRING);
 		} catch (Exception e) {
 			// handle exception
-			System.out.println("there was a problem establishing a connection to the database");
+			System.out.println("There was a problem establishing a connection to the database.");
 		}
 	}
 
@@ -42,6 +41,39 @@ public class SQLCalls {
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	public boolean verifyEmail(String email) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * FROM Users where email='"+ email +"'");
+			while(rs.next()) {
+				String tempName = rs.getString("email");
+				if(tempName.equals(email)) {
+					return true;
+				}
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	
+	public int findClient(String clientID) {
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery("select * FROM Users where username='"+ clientID +"'");
+			while(rs.next()) {
+				String tempName = rs.getString("username");
+				if(tempName.equals(clientID)) {
+					return rs.getInt("userID");
+				}
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
 	}
 	
 	public boolean verifyToken(String clientID, String token) {
@@ -75,119 +107,84 @@ public class SQLCalls {
   
 // --------------------------------- For Location.java ---------------------------------
 	
-	public String locationToName(String locationID) {
-		String locName = "";
+	// Returns all information about a Location except review list
+	public String getLocation(int locationID) {
+		String locJson = "";
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) locName = rs.getString("LocationName");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return locName;
-	}
-	
-	public String locationToAddress(String locationID) {
-		String address = "";
-		try {
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Address FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) address = rs.getString("Address");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return address;
-	}
-	
-	public ArrayList<String> locationToAverages(String locationID) {
-		ArrayList<String> averages = new ArrayList<String>();
-		try {
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT ElevatorRating, DoorRating, RampRating, Other FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) {
-				averages.add(rs.getString("ElevatorRating"));
-				averages.add(rs.getString("DoorRating"));
-				averages.add(rs.getString("RampRating"));
-				averages.add(rs.getString("Other"));
+			ResultSet loc = st.executeQuery("SELECT * From Locations WHERE LocationID='" + locationID + "';");
+			if (loc.next()) {
+				Location location = new Location(locationID, loc.getString("LocationName"), loc.getString("Address"),
+						loc.getString("PhoneNumber"), loc.getString("Website"), loc.getDouble("ElevatorRating"),
+						loc.getDouble("RampRating"), loc.getDouble("DoorRating"), loc.getDouble("OtherRating"),
+						getReviews(locationID));
+				Gson gson = new Gson();
+				locJson = gson.toJson(location);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return averages;
+		return locJson;
 	}
 	
-	public String locationToPhone(String locationID) {
-		String phone = "";
+	// Check if location exists and if lat/long match --> if not, make new location
+	public int verifyLocation(String locName, double latitude, double longitude) {
+		int locID = -1;
+		// Trim latitude and longitude to 2 decimal places
+		latitude = ((double)((int)(latitude *100.0)))/100.0;
+		longitude = ((double)((int)(longitude *100.0)))/100.0;
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT PhoneNumber FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) phone = rs.getString("PhoneNumber");
+			ResultSet rs = st.executeQuery("SELECT * FROM Locations WHERE LocationName='" + locName + "';");
+			if (rs.next()) {
+				// Trim found location's latitude and longitude to 2 decimal places
+				double locLat = rs.getDouble("Latitude");
+				locLat = ((double)((int)(locLat *100.0)))/100.0;
+				double locLong = rs.getDouble("Longitude");
+				locLong = ((double)((int)(locLong *100.0)))/100.0;
+				if (locLat == latitude && locLong == longitude) {
+					locID = rs.getInt("LocationID");
+				}
+			}
+			if (locID == -1) { // If location wasn't found with matching latitude and longitude
+				st.executeUpdate("INSERT INTO Locations (LocationName, Latitude, Longitude) VALUES ('" + locName + "', '" + latitude + "', '" + longitude + "');");
+				rs = st.executeQuery("SELECT LocationID FROM Locations WHERE LocationName='" + locName + "' AND Latitude = '" + latitude + "' AND Longitude = '" + longitude + "';");
+				if (rs.next()) locID = rs.getInt("LocationID");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return phone;
+		return locID;
 	}
 	
-	public String locationToURL(String locationID) {
-		String site = "";
+	// Return the average ratings in every category for provided location
+	
+	// Return an array list of all reviews for provided location
+	public ArrayList<Review> getReviews(int locationID) {
+		ArrayList<Review> reviews = new ArrayList<Review>();
 		try {
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT Website FROM Locations WHERE LocationID='" + locationID + "'");
-			if (rs.next()) site = rs.getString("Website");
+			ResultSet rs = st.executeQuery("SELECT * FROM Reviews WHERE LocationID='" + locationID + "';");
+			while (rs.next()) {
+				Review current = new Review(rs.getString("Title"), rs.getString("Body"), rs.getDouble("ElevatorRating"), rs.getDouble("RampRating"),
+						rs.getDouble("DoorRating"), rs.getDouble("OtherRating"), "", rs.getInt("Upvotes"), rs.getInt("Downvotes"), "", "");
+				int userID = rs.getInt("UserID");
+				int reviewID = rs.getInt("ReviewID");
+				Statement st2 = conn.createStatement();
+				ResultSet rs2 = st2.executeQuery("SELECT Name FROM Users WHERE UserID='" + userID + "';");
+				if (rs2.next()) current.userName = rs2.getString("Name");
+				Statement st3 = conn.createStatement();
+				ResultSet rs3 = st3.executeQuery("SELECT LocationName FROM Locations WHERE LocationID='" + locationID + "';");
+				if (rs3.next()) current.locationName = rs3.getString("LocationName");
+				Statement st4 = conn.createStatement();
+				ResultSet rs4 = st4.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID='" + reviewID + "';");
+				if (rs4.next()) current.image = rs4.getString("ImageData");
+				reviews.add(current);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return site;
-	}
-	
-	// Method to add review
-	public void leaveReview(String locationID, String userID, String review) {
-		try {
-			Statement st = conn.createStatement();
-			st.executeQuery("INSERT INTO Reviews (LocationID, UserID, Review, Upvotes, Downvotes) VALUES ('"
-			+ locationID + "', '" + userID + "', '" + review + "', '0', '0')");
-			return;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	// Method to leave rating --> make sure this updates average ratings in Locations table
-	public void leaveRating(String locationID, String userID, String elevatorRating, String rampRating, String doorRating, String otherRating) {
-		try {
-			Statement st = conn.createStatement();
-			st.executeQuery("INSERT INTO Ratings (UserID, LocationID, ElevatorRating, RampRating, DoorRating, Other) VALUES ('" +
-			userID + "', '" + locationID + "', '" + elevatorRating + "', '" + rampRating + "', '" + doorRating + "', '" + otherRating + "')");
-			
-			// Set new elevator rating average
-			String newElevator = "";
-			ResultSet rs = st.executeQuery("IFNULL((SELECT AVG(ElevatorRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("ElevatorRating");
-			st.executeQuery("UPDATE Locations SET ElevatorRating='" + newElevator + "' WHERE LocationID = '" + locationID + "'");
-			
-			// Set new ramp rating average
-			String newRamp = "";
-			rs = st.executeQuery("IFNULL((SELECT AVG(RampRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("RampRating");
-			st.executeQuery("UPDATE Locations SET RampRating='" + newRamp + "' WHERE LocationID = '" + locationID + "'");
-			
-			// Set new door rating average
-			String newDoor = "";
-			rs = st.executeQuery("IFNULL((SELECT AVG(DoorRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("DoorRating");
-			st.executeQuery("UPDATE Locations SET DoorRating='" + newDoor + "' WHERE LocationID = '" + locationID + "'");
-			
-			// Set new other rating average
-			String newOther = "";
-			rs = st.executeQuery("IFNULL((SELECT AVG(OtherRating) FROM Ratings WHERE LocationID = '" + locationID + "'), 0)");
-			if (rs.next()) newElevator = rs.getString("OtherRating");
-			st.executeQuery("UPDATE Locations SET OtherRating='" + newOther + "' WHERE LocationID = '" + locationID + "'");
-			
-			return;
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		return reviews;
 	}
 	
 // --------------------------------- For Profile.java ---------------------------------
@@ -279,30 +276,46 @@ public class SQLCalls {
 	
 // --------------------------------- For Review.java ---------------------------------
 
-	public String reviewToUserID(String locationID, String UserID) {
-		String userID = "";
+	public String reviewToName(String UserID) {
+		String userName = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT UserID FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
-			if (rs.next()) userID = rs.getString("UserID");
+					"SELECT Name FROM Users WHERE UserID='" + UserID + "';");
+			if (rs.next()) userName = rs.getString("Name");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return userID;
+		return userName;
 	}
 	
-	public String reviewToLocationID(String locationID, String UserID) {
-		String userID = "";
+	public String reviewToLocation(String LocationID) {
+		String locationName = "";
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT LocationID FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
-			if (rs.next()) userID = rs.getString("locationID");
+					"SELECT LocationName FROM Locations WHERE LocationID='" + LocationID + "';");
+			if (rs.next()) locationName = rs.getString("LocationName");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return userID;
+		return locationName;
+	}
+	
+	public String reviewToImage(String LocationID, String UserID) {
+		String reviewID = "";
+		String reviewImage = "";
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT ReviewID FROM Reviews WHERE LocationID='" + LocationID + "' AND UserID='" + UserID + "';");
+			if (rs.next()) reviewID = rs.getString("ReviewID");
+			rs = st.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID = '" + reviewID + "';");
+			if (rs.next()) reviewImage = rs.getString("ImageData");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return reviewImage;
 	}
 
 	public String reviewToTitle(String locationID, String UserID) {
@@ -330,60 +343,131 @@ public class SQLCalls {
 		}
 		return body;
 	}
-
-	public String reviewToUpvote(String locationID) {
-		String upvote = "";
+	
+	public double reviewToElevatorRating(String locationID, String UserID) {
+		double rating = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Upvote FROM Reviews WHERE LocationID='" + locationID + "'");
-			if (rs.next()) upvote = rs.getString("Upvote");
+					"SELECT ElevatorRating FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
+            if (rs.next()) rating = rs.getDouble("ElevatorRating");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rating;
+	}
+	
+	public double reviewToRampRating(String locationID, String UserID) {
+		double rating = 0;
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT RampRating FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
+            if (rs.next()) rating = rs.getDouble("RampRating");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rating;
+	}
+	
+	public double reviewToDoorRating(String locationID, String UserID) {
+		double rating = 0;
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT DoorRating FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
+            if (rs.next()) rating = rs.getDouble("DoorRating");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rating;
+	}
+	
+	public double reviewToOtherRating(String locationID, String UserID) {
+		double rating = 0;
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT OtherRating FROM Reviews WHERE UserID='" + UserID + "' AND LocationID='" + locationID + "'");
+            if (rs.next()) rating = rs.getDouble("OtherRating");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return rating;
+	}
+
+	public int reviewToUpvote(String locationID, String UserID) {
+		int upvote = 0;
+		try {
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"SELECT Upvotes FROM Reviews WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'");
+			if (rs.next()) upvote = Integer.parseInt(rs.getString("Upvotes"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return upvote;
 	}
 
-	public String reviewToDownvote(String locationID) {
-		String downvote = "";
+	public int reviewToDownvote(String locationID, String UserID) {
+		int downvote = 0;
 		try {
 			Statement st = conn.createStatement();
 			ResultSet rs = st.executeQuery(
-					"SELECT Downvote FROM Reviews WHERE LocationID='" + locationID + "'");
-			if (rs.next()) downvote = rs.getString("Downvote");
+					"SELECT Downvotes FROM Reviews WHERE LocationID='" + locationID + "'AND UserID='" + UserID + "'");
+			if (rs.next()) downvote = Integer.parseInt(rs.getString("Downvotes"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return downvote;
 	}
 
-    public void addUpvote(String locationID, int upvotecount) {
+    public void addUpvote(String locationID, int upvotecount, String UserID) {
 		try {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Upvote='" + upvotecount + "' WHERE LocationID='" + locationID + "'"); 
+					"UPDATE Reviews SET Upvotes='" + upvotecount + "' WHERE LocationID='" + locationID + "' AND UserID='" + UserID + "'"); 
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
-    public void addDownvote(String locationID, int downvotecount) {
+    public void addDownvote(String locationID, int downvotecount, String UserID) {
 		try {
 			Statement st = conn.createStatement();
 			//only WHERE locationID cuz votecounts are the same for everyone
 			st.executeUpdate(
-					"UPDATE Reviews SET Downvote='" + downvotecount + "' WHERE locationID='" + locationID + "'");
+					"UPDATE Reviews SET Downvotes='" + downvotecount + "' WHERE locationID='" + locationID + "' AND UserID='" + UserID + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
-    public void addReview(String locationID, String UserID, String reviewTitle, String reviewBody) {
+    public void addReview(String locationID, String UserID, String reviewTitle, String reviewBody, double elevator, double ramp, double door, double other) {
 		try {
 			Statement st = conn.createStatement();
-			st.executeUpdate(
-					"INSERT INTO Reviews " + "VALUES (" + locationID + ", " + UserID + ", " + reviewTitle + ", " + reviewBody + ")");
+			st.executeUpdate("INSERT INTO Reviews (LocationID, UserID, Title, Body, ElevatorRating, RampRating, DoorRating, " + 
+					"OtherRating, Upvotes, Downvotes) VALUES ('" + locationID + "', '" + UserID + "', '" + reviewTitle + "', '" + reviewBody
+					+ "', '" + elevator + "', '" + ramp + "', '" + door + "', '" + other + "', '0', '0');");
+			// Update averages in Locations table
+			double elevatorRating = 0;
+			ResultSet rs = st.executeQuery("SELECT IFNULL(AVG(ElevatorRating),0) FROM Reviews WHERE LocationID='" + locationID + "'");
+			if (rs.next()) elevatorRating = rs.getDouble("IFNULL(AVG(ElevatorRating),0)");
+			st.executeUpdate("UPDATE Locations SET ElevatorRating='" + elevatorRating + "' WHERE LocationID='" + locationID + "'");
+			double rampRating = 0;
+			rs = st.executeQuery("SELECT IFNULL(AVG(RampRating),0) FROM Reviews WHERE LocationID='" + locationID + "'");
+			if (rs.next()) rampRating = rs.getDouble("IFNULL(AVG(RampRating),0)");
+			st.executeUpdate("UPDATE Locations SET RampRating='" + rampRating + "' WHERE LocationID='" + locationID + "'");
+			double doorRating = 0;
+			rs = st.executeQuery("SELECT IFNULL(AVG(DoorRating),0) FROM Reviews WHERE LocationID='" + locationID + "'");
+			if (rs.next()) doorRating = rs.getDouble("IFNULL(AVG(DoorRating),0)");
+			st.executeUpdate("UPDATE Locations SET DoorRating='" + doorRating + "' WHERE LocationID='" + locationID + "'");
+			double otherRating = 0;
+			rs = st.executeQuery("SELECT IFNULL(AVG(OtherRating),0) FROM Reviews WHERE LocationID='" + locationID + "'");
+			if (rs.next()) otherRating = rs.getDouble("IFNULL(AVG(OtherRating),0)");
+			st.executeUpdate("UPDATE Locations SET OtherRating='" + otherRating + "' WHERE LocationID='" + locationID + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
+}

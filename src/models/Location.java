@@ -3,7 +3,8 @@ package models;
 import java.util.ArrayList;
 
 public class Location {
-	private String name;
+	private int id;
+	String name;
 	private String address;
 	private String phoneNumber;
 	private String website;
@@ -13,8 +14,9 @@ public class Location {
 	private double otherRating;
 	private ArrayList<Review> reviews;
 	
-	// Instantiate Location object
-	public Location(String name,
+	// Return information for a Location object
+	public Location(int id,
+					String name,
 					String address,
 					String phoneNumber,
 					String website,
@@ -23,13 +25,18 @@ public class Location {
 					double doorRating,
 					double otherRating,
 					ArrayList<Review> reviews) {
+		this.id = id;
 		this.name = name;
 		this.address = address;
 		this.phoneNumber = phoneNumber;
 		this.website = website;
 		this.elevatorRating = elevatorRating;
+		this.rampRating = rampRating;
 		this.doorRating = doorRating;
 		this.otherRating = otherRating;
 		this.reviews = reviews;
+		if (address == null) this.address = "";
+		if (phoneNumber == null) this.phoneNumber = "";
+		if (website == null) this.website = "";
 	}
 }
