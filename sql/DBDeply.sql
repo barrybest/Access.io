@@ -15,13 +15,6 @@ create table Users(
     Handicap VARCHAR(1000)
 );
 
--- profile picture table
-create table ProfilePictures(
-	PictureID INT primary key NOT NULL auto_increment,
-	ReviewID INT NOT NULL,
-	ImageData VARBINARY(MAX) NOT NULL
-);
-
 -- location table
 create table Locations(
 	LocationID INT PRIMARY KEY NOT NULL auto_increment,
@@ -60,11 +53,4 @@ create table Reviews(
     Downvotes INT,
     foreign key fk1(LocationID) references Locations(LocationID),
     foreign key fk2(UserID) references Users(UserID)
-);
-
--- review pictures table
-create table ReviewPictures(
-	PictureID INT primary key NOT NULL auto_increment,
-	ReviewID INT NOT NULL,
-	ImageData VARBINARY(MAX) NOT NULL
 );

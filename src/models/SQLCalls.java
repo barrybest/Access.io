@@ -255,23 +255,19 @@ public class SQLCalls {
 		try {
 			Statement userST = conn.createStatement();
 			Statement reviewST = conn.createStatement();
-			Statement profileImageST = conn.createStatement();
-			Statement reviewImageST = conn.createStatement();
 			Statement locationST = conn.createStatement();
 			ResultSet userRS = userST.executeQuery("SELECT Name, IFNULL(City, \"\"), IFNULL(Verified, false), IFNULL(Handicap, \"\") From Users WHERE Username='" + username + "'");
 			if(userRS.next()) {
 				ResultSet reviewRS = reviewST.executeQuery("SELECT Title, Body, IFNULL(Upvotes, 0), IFNULL(Downvotes, 0) From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
-				ResultSet profileImageRS = profileImageST.executeQuery("IFNULL(SELECT ImageData From ProfilePictures WHERE UserID='" + userRS.getInt("UserID") + "', \"\")");
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
-					ResultSet reviewImageRS = reviewImageST.executeQuery("IFNULL(SELECT ImageData From ReviewPictures WHERE reviewID='" + reviewRS.getInt("ReviewID") + "', \"\")");
 					ResultSet locationRS = locationST.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
 					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), userRS.getString("Name"),
-							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"), reviewImageRS.getString("ImageData"));
+							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"));
 					reviews.add(review);
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
-						userRS.getBoolean("Verified"), userRS.getString("Handicap"), profileImageRS.getString("ImageData"), reviews);
+						userRS.getBoolean("Verified"), userRS.getString("Handicap"), reviews);
 				Gson gson = new Gson();
 				jsonUser = gson.toJson(profile);
 			}

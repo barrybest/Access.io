@@ -8,7 +8,6 @@ public class Profile {
 	private double stars;
 	private boolean verified;
 	private String handicap;
-	private String picture;
 	private ArrayList<Review> reviews;
 	
 	public Profile(String name,
@@ -16,7 +15,6 @@ public class Profile {
 			double stars,
 			boolean verified,
 			String handicap,
-			String picture,
 			ArrayList<Review> reviews) {
 		this.name = name;
 		this.city = city;
@@ -24,6 +22,5 @@ public class Profile {
 		this.stars = stars;
 		this.verified = verified;
 		this.handicap = handicap;
-		this.picture =  picture;
 	}
 }
