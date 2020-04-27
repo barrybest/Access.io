@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import org.json.JSONObject;
-import com.sun.org.apache.xpath.internal.operations.And;
+
+import com.google.gson.Gson;
 
 public class SQLCalls {
 	// Note: This connection assumes that your user is root and your password is root
@@ -272,8 +272,8 @@ public class SQLCalls {
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
 						userRS.getBoolean("Verified"), userRS.getString("Handicap"), profileImageRS.getString("ImageData"), reviews);
-				JSONObject profileObject = new JSONObject(profile);
-				jsonUser = profileObject.toString();
+				Gson gson = new Gson();
+				jsonUser = gson.toJson(profile);
 			}
 		} catch (SQLException e) {
 			System.out.println("SQLException in getUser: " + e.getMessage());
