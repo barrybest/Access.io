@@ -29,6 +29,7 @@ public class ProfileServ extends HttpServlet {
 		SQLCalls mysql = new SQLCalls();
 		PrintWriter pw = response.getWriter();
 		if(requestType.equals("getProfile")) {
+			System.out.println("getting profile");
 			pw.println(mysql.getProfile(username));
 		}
 		else if(requestType.equals("setCity")) {
@@ -39,6 +40,9 @@ public class ProfileServ extends HttpServlet {
 		}
 		else if(requestType.equals("setHandicap")) {
 			pw.println(mysql.setHandicap(username, request.getParameter("handicap")));
+		}
+		else if(requestType.equals("incStars")) {
+			pw.println(mysql.incStars(username));
 		}
 	}
 
