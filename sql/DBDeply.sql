@@ -41,8 +41,8 @@ CREATE TABLE Reviews(
     OtherRating DOUBLE,
     Upvotes INT,
     Downvotes INT,
-    foreign key fk1(LocationID) references Locations(LocationID),
-    foreign key fk2(UserID) references Users(UserID)
+    FOREIGN KEY fk1(LocationID) REFERENCES Locations(LocationID),
+    FOREIGN KEY fk2(UserID) REFERENCES Users(UserID)
 );
 
 -- ---------------------- Add locations ---------------------- 

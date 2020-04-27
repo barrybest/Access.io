@@ -10,7 +10,7 @@ public class Review {
 	String userName;
 	private int upvotes;
 	private int downvotes;
-	private String locationName;
+	String locationName;
 	
 public Review(String title,
 			  String body,
