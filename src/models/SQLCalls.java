@@ -230,37 +230,41 @@ public class SQLCalls {
 	
 	// increments a user's stars
 	//  stars displayed to user will be divided by 5 with a max of 25
-	public void incStars(String userID) {
+	public String incStars(String username) {
 		try {
 			Statement st = conn.createStatement();
-			ResultSet starsRS = st.executeQuery("SELECT Stars From Users WHERE UserID='" + userID + "'");
+			ResultSet starsRS = st.executeQuery("SELECT Stars From Users WHERE Username='" + username + "'");
 			if(starsRS.next()) {
 				if(starsRS.getDouble("Stars") < 25) {
-					st.executeUpdate("UPDATE Users SET Stars='" + starsRS.getDouble("Stars") + "' WHERE UserID='" + userID + "'");
+					st.executeUpdate("UPDATE Users SET Stars='" + starsRS.getDouble("Stars") + "' WHERE Username='" + username + "'");
 				}
 			}
 		} catch (SQLException e) {
 			System.out.println("SQLException in incStars: " + e.getMessage());
 		}
+		return "success";
 	}
 	
-	// gets the serialized JSON object of the profile for a given userID
+	// gets the serialized JSON object of the profile for a given username
 	public String getProfile(String username) {
 		String jsonUser = "";
 		try {
 			Statement userST = conn.createStatement();
 			Statement reviewST = conn.createStatement();
 			Statement locationST = conn.createStatement();
-			ResultSet userRS = userST.executeQuery("SELECT Name, IFNULL(City, \"\"), IFNULL(Verified, false), IFNULL(Handicap, \"\") From Users WHERE Username='" + username + "'");
+			ResultSet userRS = userST.executeQuery("SELECT UserID, Name, City, Verified, Handicap, Stars FROM Users WHERE Username='" + username + "'");
 			if(userRS.next()) {
-				ResultSet reviewRS = reviewST.executeQuery("SELECT Title, Body, IFNULL(ElevatorRating, 0), IFNULL(RampRating, 0), IFNULL(DoorRating, 0), IFNULL(OtherRating, 0), IFNULL(Upvotes, 0), IFNULL(Downvotes, 0) From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
+				ResultSet reviewRS = reviewST.executeQuery("SELECT LocationID, Title, Body, ElevatorRating, RampRating, DoorRating, "
+						+ "OtherRating, 0.0, Upvotes, Downvotes From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
 					ResultSet locationRS = locationST.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
-					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), reviewRS.getDouble("ElevatorRating"),
-							reviewRS.getDouble("RampRating"), reviewRS.getDouble("DoorRating"), reviewRS.getDouble("OtherRating"), 
-							userRS.getString("Name"), reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"));
-					reviews.add(review);
+					if(locationRS.next()) {
+						Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), reviewRS.getDouble("ElevatorRating"),
+								reviewRS.getDouble("RampRating"), reviewRS.getDouble("DoorRating"), reviewRS.getDouble("OtherRating"), 
+								userRS.getString("Name"), reviewRS.getInt("Upvotes"), reviewRS.getInt("Downvotes"), locationRS.getString("LocationName"));
+						reviews.add(review);
+					}
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
 						userRS.getBoolean("Verified"), userRS.getString("Handicap"), reviews);
@@ -268,7 +272,7 @@ public class SQLCalls {
 				jsonUser = gson.toJson(profile);
 			}
 		} catch (SQLException e) {
-			System.out.println("SQLException in getUser: " + e.getMessage());
+			System.out.println("SQLException in getProfile: " + e.getMessage());
 		}
 		return jsonUser;
 	}
