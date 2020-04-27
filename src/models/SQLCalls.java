@@ -241,6 +241,7 @@ public class SQLCalls {
 			}
 		} catch (SQLException e) {
 			System.out.println("SQLException in incStars: " + e.getMessage());
+			return "SQLException in incStars: " + e.getMessage();
 		}
 		return "success";
 	}
