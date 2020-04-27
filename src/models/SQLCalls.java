@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
-import com.sun.org.apache.xpath.internal.operations.And;
 
 public class SQLCalls {
 	// Note: This connection assumes that your user is root and your password is root
@@ -207,10 +206,10 @@ public class SQLCalls {
 		try {
 			Statement st = conn.createStatement();
 			if(verified.equals("true")) {
-				st.executeQuery("UPDATE Users SET Verified='" + true + "' WHERE Username='" + username + "'");
+				st.executeUpdate("UPDATE Users SET Verified='" + true + "' WHERE Username='" + username + "'");
 			}
 			else {
-				st.executeQuery("UPDATE Users SET Verified='" + null + "' WHERE Username='" + username + "'");
+				st.executeUpdate("UPDATE Users SET Verified='" + null + "' WHERE Username='" + username + "'");
 			}
 		} catch(SQLException e) {
 			System.out.println("SQLException in setCity: " + e.getMessage());
@@ -223,7 +222,7 @@ public class SQLCalls {
 	public String setHandicap(String username, String handicap) {
 		try {
 			Statement st = conn.createStatement();
-			st.executeQuery("UPDATE Users SET Handicap='" + handicap + "' WHERE Username='" + username + "'");
+			st.executeUpdate("UPDATE Users SET Hnadicap='" + handicap + "' WHERE Username='" + username + "'");
 		} catch(SQLException e) {
 			System.out.println("SQLException in setCity: " + e.getMessage());
 			return "SQLException in setCity: " + e.getMessage();
@@ -239,7 +238,7 @@ public class SQLCalls {
 			ResultSet starsRS = st.executeQuery("SELECT Stars From Users WHERE UserID='" + userID + "'");
 			if(starsRS.next()) {
 				if(starsRS.getDouble("Stars") < 25) {
-					st.executeQuery("UPDATE Users SET Stars='" + starsRS.getDouble("Stars") + "' WHERE UserID='" + userID + "'");
+					st.executeUpdate("UPDATE Users SET Stars='" + starsRS.getDouble("Stars") + "' WHERE UserID='" + userID + "'");
 				}
 			}
 		} catch (SQLException e) {
@@ -251,20 +250,21 @@ public class SQLCalls {
 	public String getProfile(String username) {
 		String jsonUser = "";
 		try {
-			Statement st = conn.createStatement();
-			ResultSet userRS = st.executeQuery("SELECT Name, IFNULL(City, \"\"), IFNULL(Verified, false), IFNULL(Handicap, \"\") From Users WHERE Username='" + username + "'");
+			Statement userST = conn.createStatement();
+			Statement reviewST = conn.createStatement();
+			Statement profileImageST = conn.createStatement();
+			Statement reviewImageST = conn.createStatement();
+			Statement locationST = conn.createStatement();
+			ResultSet userRS = userST.executeQuery("SELECT Name, IFNULL(City, \"\"), IFNULL(Verified, false), IFNULL(Handicap, \"\") From Users WHERE Username='" + username + "'");
 			if(userRS.next()) {
-				ResultSet reviewRS = st.executeQuery("SELECT Title, Body, IFNULL(Upvotes, 0), IFNULL(Downvotes, 0) From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
-				ResultSet profileImageRS = st.executeQuery("IFNULL(SELECT ImageData From ProfilePictures WHERE UserID='" + userRS.getInt("UserID") + "', \"\")");
+				ResultSet reviewRS = reviewST.executeQuery("SELECT Title, Body, IFNULL(Upvotes, 0), IFNULL(Downvotes, 0) From Reviews WHERE UserID='" + userRS.getInt("UserID") + "'");
+				ResultSet profileImageRS = profileImageST.executeQuery("IFNULL(SELECT ImageData From ProfilePictures WHERE UserID='" + userRS.getInt("UserID") + "', \"\")");
 				ArrayList<Review> reviews = new ArrayList<Review>();
 				while(reviewRS.next()) {
-					ResultSet locationRS = st.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
-					String locationName = "";
-					if (locationRS.next()) locationName = locationRS.getString("LocationName");
-					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), reviewRS.getDouble("ElevatorRating"), reviewRS.getDouble("RampRating"),
-							reviewRS.getDouble("DoorRating"), reviewRS.getDouble("OtherRating"), userRS.getString("Name"), reviewRS.getInt("Upvotes"), reviewRS.getInt("Downvotes"), locationName, null);
-					ResultSet reviewImage = st.executeQuery("SELECT ImageData FROM ReviewPictures WHERE ReviewID = '" + reviewRS.getInt("ReviewID") + "';");
-					if (reviewImage.next()) review.image = reviewImage.getString("ImageData");
+					ResultSet reviewImageRS = reviewImageST.executeQuery("IFNULL(SELECT ImageData From ReviewPictures WHERE reviewID='" + reviewRS.getInt("ReviewID") + "', \"\")");
+					ResultSet locationRS = locationST.executeQuery("SELECT LocationName From Locations WHERE LocationID='" + reviewRS.getInt("LocationID") + "'");
+					Review review = new Review(reviewRS.getString("Title"), reviewRS.getString("Body"), userRS.getString("Name"),
+							reviewRS.getInt("upvotes"), reviewRS.getInt("downvotes"), locationRS.getString("LocationName"), reviewImageRS.getString("ImageData"));
 					reviews.add(review);
 				}
 				Profile profile = new Profile(userRS.getString("Name"), userRS.getString("City"), userRS.getDouble("Stars"),
